@@ -1,1 +1,5 @@
 /target
+
+# vscode stuff
+workspace.code-workspace
+.vscode
