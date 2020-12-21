@@ -1,9 +1,13 @@
-use actix_web::{middleware, App, HttpServer};
+use actix_web::{middleware, web, App, HttpServer};
 
 #[path = "./routers/page.routers.rs"]
-mod routers;
+mod page_routers;
 
-use routers::PageRouter;
+#[path = "./routers/module.routers.rs"]
+mod module_routers;
+
+use module_routers::ModuleRouter;
+use page_routers::PageRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -22,7 +26,9 @@ async fn main() -> std::io::Result<()> {
                     .header("Access-Control-Allow-Origin", "*"),
             )
             .service(
-                PageRouter::new()
+                web::scope("/v1")
+                    .service(PageRouter::new())
+                    .service(ModuleRouter::new()),
             )
     })
     .bind("127.0.0.1:9090")?
