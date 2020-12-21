@@ -22,9 +22,9 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/v1")
-                .route("/", web::get().to(controllers::root))
-                .route("/pages", web::get().to(controllers::pages))
-                .route("/pages/{id}", web::get().to(controllers::page))
+                .route("/", web::get().to(controllers::get_root))
+                .route("/pages", web::get().to(controllers::get_pages))
+                .route("/pages/{id}", web::get().to(controllers::get_page))
             )
     })
     .bind("127.0.0.1:9090")?
