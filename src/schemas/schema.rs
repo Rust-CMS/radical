@@ -11,6 +11,7 @@ table! {
         module_id -> Integer,
         module_type_id -> Integer,
         page_id -> Integer,
+        content -> Nullable<Text>,
     }
 }
 
