@@ -36,17 +36,15 @@ pub async fn get_page(req: HttpRequest) -> impl Responder {
         .body(serde_json::to_string(&page).unwrap())
 }
 
-
-
-pub async fn update_page(req_body: String) -> impl Responder {
+pub async fn update_page(req: HttpRequest, req_body: String) -> impl Responder {
     let u_page: MutPage = serde_json::from_str(&req_body).expect("Did not correctly parse update parse page.");
-
+    let page_id: i32 = req.match_info().get("id").unwrap().parse().unwrap();
+    Page::update(page_id, &u_page);
     HttpResponse::Ok().body("Success")
 }
 
 pub async fn delete_page(req: HttpRequest) -> impl Responder {
     let page_id: i32 = req.match_info().get("id").unwrap().parse().unwrap();
-
     Page::delete(page_id);
     HttpResponse::Ok().body("Success")
 }
