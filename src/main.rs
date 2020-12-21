@@ -3,6 +3,10 @@ use actix_web::{App, HttpServer, middleware, web};
 #[path = "./controllers/page.controllers.rs"]
 mod controllers;
 
+
+#[macro_use]
+extern crate diesel;
+
 /// The main function is replaced by actix_web::main.
 /// This allows main to be async and register the HttpServer.
 /// All routes are defined here.
