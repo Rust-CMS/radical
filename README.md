@@ -1,6 +1,6 @@
 # RustCMS by Spencer Bills
 
-## DotEnv Settings Required ():
+## DotEnv Settings Required:
 TODO: Create page in program that does this for you like Processwire does
 
 ```
