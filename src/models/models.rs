@@ -1,18 +1,14 @@
-use async_trait::async_trait;
 use diesel::{Connection, MysqlConnection};
 use dotenv::dotenv;
 use std::env;
 
-use super::{MutPage, Page};
-
 /// CRUD implementation.
-#[async_trait]
-pub trait Model {
-    async fn create(new_page: &MutPage);
-    async fn read_one(page_id: i32) -> Page;
-    async fn read_all() -> Vec<Page>;
-    async fn update(id: i32, new_page: &MutPage);
-    async fn delete(id: i32);
+pub trait Model<T, G> {
+    fn create(new: &G);
+    fn read_one(id: i32) -> T;
+    fn read_all() -> Vec<T>;
+    fn update(id: i32, new: &G);
+    fn delete(id: i32);
 }
 
 pub fn establish_database_connection() -> MysqlConnection {

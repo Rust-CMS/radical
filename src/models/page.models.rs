@@ -3,17 +3,11 @@ use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 
-use async_trait::async_trait;
-
-#[path = "../models/models.rs"]
-mod models;
-
 #[path = "../schemas/schema.rs"]
 mod schema;
 
 use schema::pages;
-use models::Model;
-use models::establish_database_connection;
+use super::models::{Model, establish_database_connection};
 
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq)]
@@ -36,34 +30,29 @@ pub struct MutPage {
 /// Every one of these functions exports only what they need out of `dsl`.
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*) 
 /// is unnecessary and leads to higher RAM usage.
-#[async_trait]
-impl Model for Page {
-    async fn create(new_page: &MutPage) {
-        use schema::pages;
+impl Model<Page, MutPage> for Page {
+    fn create(new_page: &MutPage) {
         let db = establish_database_connection();
 
         diesel::insert_into(pages::table).values(new_page).execute(&db).unwrap();
     }
 
-    async fn read_one(id: i32) -> Page {
+    fn read_one(id: i32) -> Self {
         use schema::pages::dsl::pages;
         use schema::pages::dsl::page_id;
         
         let db = establish_database_connection();
 
-        pages.filter(page_id.eq(id)).first::<Page>(&db).unwrap()
+        pages.filter(page_id.eq(id)).first::<Self>(&db).unwrap()
     }
 
-    async fn read_all() -> Vec<Page> {
-        use super::models::Page;
-        use schema::pages;
-
+    fn read_all() -> Vec<Self> {
         let db = establish_database_connection();
 
-        pages::table.load::<Page>(&db).unwrap()
+        pages::table.load::<Self>(&db).unwrap()
     }
 
-    async fn update(id: i32, new_page: &MutPage) {
+    fn update(id: i32, new_page: &MutPage) {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
 
@@ -73,7 +62,7 @@ impl Model for Page {
 
     }
 
-    async fn delete(id: i32) {
+    fn delete(id: i32) {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
 
