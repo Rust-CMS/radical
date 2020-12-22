@@ -48,7 +48,6 @@ impl Model<Module, MutModule> for Module {
     fn delete(mod_id: i32) -> Result<usize, diesel::result::Error> {
         use schema::modules::dsl::module_id;
         use schema::modules::dsl::modules;
-
         let db = establish_database_connection();
 
         Ok(diesel::delete(modules.filter(module_id.eq(mod_id))).execute(&db)?)

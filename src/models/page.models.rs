@@ -1,13 +1,15 @@
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
 
 #[path = "../schemas/schema.rs"]
 mod schema;
 
+use super::{
+    models::{establish_database_connection, Model},
+};
 use schema::pages;
-use super::{middleware::CustomHttpError, models::{Model, establish_database_connection}};
 
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq)]
@@ -28,19 +30,20 @@ pub struct MutPage {
 /// schema::...::dsl exports all of the columns.
 /// It also exports the table name again. This allows for filtering through the rows of the table.
 /// Every one of these functions exports only what they need out of `dsl`.
-/// Taking all of the columns (for instance whenever using schema::pages::dsl::*) 
+/// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
 impl Model<Page, MutPage> for Page {
     fn create(new_page: &MutPage) -> Result<usize, diesel::result::Error> {
         let db = establish_database_connection();
 
-        Ok(diesel::insert_into(pages::table).values(new_page).execute(&db)?)
+        Ok(diesel::insert_into(pages::table)
+            .values(new_page)
+            .execute(&db)?)
     }
 
     fn read_one(id: i32) -> Result<Self, diesel::result::Error> {
-        use schema::pages::dsl::pages;
         use schema::pages::dsl::page_id;
-        
+        use schema::pages::dsl::pages;
         let db = establish_database_connection();
 
         pages.filter(page_id.eq(id)).first::<Self>(&db)
@@ -55,16 +58,16 @@ impl Model<Page, MutPage> for Page {
     fn update(id: i32, new_page: &MutPage) -> Result<usize, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
-
         let db = establish_database_connection();
 
-        Ok(diesel::update(pages.filter(page_id.eq(id))).set(new_page).execute(&db)?)
+        Ok(diesel::update(pages.filter(page_id.eq(id)))
+            .set(new_page)
+            .execute(&db)?)
     }
 
     fn delete(id: i32) -> Result<usize, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
-
         let db = establish_database_connection();
 
         Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(&db)?)
