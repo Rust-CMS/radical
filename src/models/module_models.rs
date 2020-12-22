@@ -11,7 +11,7 @@ use super::models::{Model, establish_database_connection};
 
 use schema::modules;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Module {
     module_id: i32,
     module_type_id: i32,

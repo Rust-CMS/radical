@@ -14,11 +14,11 @@ use super::{
 use schema::pages;
 
 /// The main Rust implementation for the Page model.
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
-    page_id: i32,
-    title: String,
-    time_created: NaiveDateTime,
+    pub page_id: i32,
+    pub title: String,
+    pub time_created: NaiveDateTime,
 }
 /// This acts as both the insertable and update object.
 /// This can be done since pages only really have a `title` column that isn't auto filled.
@@ -26,6 +26,14 @@ pub struct Page {
 #[table_name = "pages"]
 pub struct MutPage {
     title: String,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub struct PageModuleRelation {
+    pub page_id: i32,
+    pub title: String,
+    pub time_created: NaiveDateTime,
+    pub modules: Vec<Module>
 }
 
 /// Implementation for Page restricted by models.rs trait.
