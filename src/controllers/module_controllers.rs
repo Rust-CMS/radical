@@ -1,33 +1,27 @@
 use actix_web::{HttpRequest, HttpResponse};
-use models::Model;
 
-#[path = "../models/models.rs"]
-mod models;
+use crate::models::Model;
 
-#[path = "../models/module.models.rs"]
-mod module;
+use crate::module_models::{MutModule, Module};
 
-use module::{MutModule, Module};
+use crate::errors_middleware::CustomHttpError;
+use crate::errors_middleware::map_parsing_error;
+use crate::errors_middleware::map_sql_error;
 
-#[path = "../middleware/errors.middleware.rs"]
-mod middleware;
-
-use middleware::CustomHttpError;
-use middleware::map_parsing_error;
-use middleware::map_sql_error;
+use crate::response_middleware::HttpResponseBuilder;
 
 pub async fn create_module(req_body: String) -> Result<HttpResponse, CustomHttpError> {
     let new_module: MutModule = serde_json::from_str(&req_body).unwrap();
-    
+
     Module::create(&new_module).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(201, &new_module)
 }
 
 pub async fn get_modules() -> Result<HttpResponse, CustomHttpError> {
     let modules = Module::read_all().map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body(serde_json::to_string(&modules).unwrap()))
+    HttpResponseBuilder::new(200, &modules)
 }
 
 pub async fn get_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
@@ -35,7 +29,7 @@ pub async fn get_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpErro
 
     let module = Module::read_one(module_id).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body(serde_json::to_string(&module).unwrap()))
+    HttpResponseBuilder::new(200, &module)
 }
 
 pub async fn update_module(req_body: String, req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
@@ -44,7 +38,7 @@ pub async fn update_module(req_body: String, req: HttpRequest) -> Result<HttpRes
 
     Module::update(module_id, &new_module).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(200, &new_module)
 }
 
 pub async fn delete_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
@@ -52,5 +46,5 @@ pub async fn delete_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpE
 
     Module::delete(module_id).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", module_id))
 }

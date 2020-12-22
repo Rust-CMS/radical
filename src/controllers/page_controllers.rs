@@ -1,19 +1,15 @@
 use actix_web::{HttpRequest, HttpResponse, Responder};
-use models::Model;
-use page::{MutPage, Page};
 
-#[path = "../models/page.models.rs"]
-mod page;
+use crate::models::Model;
 
-#[path = "../models/models.rs"]
-mod models;
+use crate::page_models::{MutPage, Page};
 
-#[path = "../middleware/errors.middleware.rs"]
-mod middleware;
+use crate::errors_middleware::CustomHttpError;
+use crate::errors_middleware::map_parsing_error;
+use crate::errors_middleware::map_sql_error;
 
-use middleware::map_parsing_error;
-use middleware::map_sql_error;
-use middleware::CustomHttpError;
+use crate::response_middleware::HttpResponseBuilder;
+
 
 /// BEGIN ROOT CONTROLLERS
 
@@ -28,13 +24,13 @@ pub async fn create_page(req_body: String) -> Result<HttpResponse, CustomHttpErr
 
     Page::create(&new_page).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(201, &new_page)
 }
 
 pub async fn get_pages() -> Result<HttpResponse, CustomHttpError> {
     let pages: Vec<Page> = Page::read_all().map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body(serde_json::to_string(&pages).unwrap()))
+    HttpResponseBuilder::new(200, &pages)
 }
 
 pub async fn get_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
@@ -47,7 +43,7 @@ pub async fn get_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError>
 
     let page: Page = Page::read_one(page_id).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body(serde_json::to_string(&page).unwrap()))
+    HttpResponseBuilder::new(200, &page)
 }
 
 pub async fn update_page(
@@ -65,7 +61,7 @@ pub async fn update_page(
 
     Page::update(page_id, &u_page).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(200, &u_page)
 }
 
 pub async fn delete_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
@@ -78,5 +74,5 @@ pub async fn delete_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpErr
 
     Page::delete(page_id).map_err(map_sql_error)?;
 
-    Ok(HttpResponse::Ok().body("Success"))
+    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", page_id))
 }
