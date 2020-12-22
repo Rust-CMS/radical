@@ -4,11 +4,11 @@ use std::env;
 
 /// CRUD implementation.
 pub trait Model<T, G> {
-    fn create(new: &G);
-    fn read_one(id: i32) -> T;
-    fn read_all() -> Vec<T>;
-    fn update(id: i32, new: &G);
-    fn delete(id: i32);
+    fn create(new: &G) -> Result<usize, diesel::result::Error>;
+    fn read_one(id: i32) -> Result<T, diesel::result::Error>;
+    fn read_all() -> Result<Vec<T>, diesel::result::Error>;
+    fn update(id: i32, new: &G) -> Result<usize, diesel::result::Error>;
+    fn delete(id: i32) -> Result<usize, diesel::result::Error>;
 }
 
 pub fn establish_database_connection() -> MysqlConnection {

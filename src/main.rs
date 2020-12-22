@@ -1,3 +1,5 @@
+#![feature(int_error_matching)]
+
 use actix_web::{middleware, web, App, HttpServer};
 
 #[path = "./routers/page.routers.rs"]

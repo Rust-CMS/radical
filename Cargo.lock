@@ -1304,6 +1304,7 @@ dependencies = [
  "dotenv",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
