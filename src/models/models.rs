@@ -3,9 +3,10 @@ use dotenv::dotenv;
 use std::env;
 
 /// CRUD implementation.
-pub trait Model<T, G> {
+pub trait Model<T, G, H> {
     fn create(new: &G) -> Result<usize, diesel::result::Error>;
     fn read_one(id: i32) -> Result<T, diesel::result::Error>;
+    fn read_one_join_on(id: i32) -> Result<Vec<(T, H)>, diesel::result::Error>;
     fn read_all() -> Result<Vec<T>, diesel::result::Error>;
     fn update(id: i32, new: &G) -> Result<usize, diesel::result::Error>;
     fn delete(id: i32) -> Result<usize, diesel::result::Error>;

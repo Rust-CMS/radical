@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 #[path = "../schemas/schema.rs"]
 mod schema;
 
+use crate::module_models::Module;
+
 use super::{
     models::{establish_database_connection, Model},
 };
@@ -32,7 +34,7 @@ pub struct MutPage {
 /// Every one of these functions exports only what they need out of `dsl`.
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
-impl Model<Page, MutPage> for Page {
+impl Model<Page, MutPage, Module> for Page {
     fn create(new_page: &MutPage) -> Result<usize, diesel::result::Error> {
         let db = establish_database_connection();
 
@@ -47,6 +49,15 @@ impl Model<Page, MutPage> for Page {
         let db = establish_database_connection();
 
         pages.filter(page_id.eq(id)).first::<Self>(&db)
+    }
+
+    fn read_one_join_on(id: i32) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
+        use schema::pages::dsl::page_id;
+        use schema::pages::dsl::pages;
+        use schema::modules::dsl::modules;
+        let db = establish_database_connection();
+
+        pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(&db)
     }
 
     fn read_all() -> Result<Vec<Self>, diesel::result::Error> {
