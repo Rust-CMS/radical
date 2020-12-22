@@ -2,14 +2,29 @@
 
 use actix_web::{middleware, web, App, HttpServer};
 
-#[path = "./routers/page.routers.rs"]
+/// All top level module declarations should go in main.rs.
+/// This allows you to then `use crate::module_controllers` in other files.
+#[path = "./controllers/module_controllers.rs"]
+mod module_controllers;
+#[path = "./controllers/page_controllers.rs"]
+mod page_controllers;
+#[path = "./middleware/errors_middleware.rs"]
+mod errors_middleware;
+#[path = "./middleware/response_middleware.rs"]
+mod response_middleware;
+#[path = "./models/models.rs"]
+mod models;
+#[path = "./models/module_models.rs"]
+mod module_models;
+#[path = "./models/page_models.rs"]
+mod page_models;
+#[path = "./routers/module_routers.rs"]
+mod module_routers;
+#[path = "./routers/page_routers.rs"]
 mod page_routers;
 
-#[path = "./routers/module.routers.rs"]
-mod module_routers;
-
-use module_routers::ModuleRouter;
 use page_routers::PageRouter;
+use module_routers::ModuleRouter;
 
 #[macro_use]
 extern crate diesel;
