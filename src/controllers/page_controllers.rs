@@ -1,6 +1,6 @@
 use actix_web::{HttpRequest, HttpResponse, Responder};
 
-use crate::{models::Model, page_models::PageModuleRelation};
+use crate::{models::{Joinable, Model}, page_models::PageModuleRelation};
 
 use crate::page_models::{MutPage, Page};
 

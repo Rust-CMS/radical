@@ -3,13 +3,20 @@ use dotenv::dotenv;
 use std::env;
 
 /// CRUD implementation.
-pub trait Model<T, G, H> {
-    fn create(new: &G) -> Result<usize, diesel::result::Error>;
-    fn read_one(id: i32) -> Result<T, diesel::result::Error>;
-    fn read_one_join_on(id: i32) -> Result<Vec<(T, H)>, diesel::result::Error>;
-    fn read_all() -> Result<Vec<T>, diesel::result::Error>;
-    fn update(id: i32, new: &G) -> Result<usize, diesel::result::Error>;
+pub trait Model<TQueryable, TMutable> {
+    fn create(new: &TMutable) -> Result<usize, diesel::result::Error>;
+    fn read_one(id: i32) -> Result<TQueryable, diesel::result::Error>;
+    fn read_all() -> Result<Vec<TQueryable>, diesel::result::Error>;
+    fn update(id: i32, new: &TMutable) -> Result<usize, diesel::result::Error>;
     fn delete(id: i32) -> Result<usize, diesel::result::Error>;
+}
+
+/// Trait that enforces a  Model to be joinable if that is desired.
+/// Usually used for inner joins in this program.
+/// If implemented another way, make sure to follow the generic labelling.
+/// First parameter MUST be the left table, and second parameter MUST be the right table.
+pub trait Joinable<TLeft, TRight> {
+    fn read_one_join_on(id: i32) -> Result<Vec<(TLeft, TRight)>, diesel::result::Error>;
 }
 
 pub fn establish_database_connection() -> MysqlConnection {

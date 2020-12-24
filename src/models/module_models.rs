@@ -5,8 +5,6 @@ use diesel::prelude::*;
 #[path = "../schemas/schema.rs"]
 mod schema;
 
-use crate::page_models::Page;
-
 use super::models::{Model, establish_database_connection};
 
 use schema::modules;
@@ -27,7 +25,7 @@ pub struct MutModule {
     content: Option<String>
 }
 
-impl Model<Module, MutModule, Page> for Module {
+impl Model<Module, MutModule> for Module {
     fn create(new_module: &MutModule) -> Result<usize, diesel::result::Error> {
         let db = establish_database_connection();
 
@@ -45,15 +43,6 @@ impl Model<Module, MutModule, Page> for Module {
         let db = establish_database_connection();
 
         Ok(modules::table.load::<Module>(&db)?)
-    }
-
-    fn read_one_join_on(id: i32) -> Result<Vec<(Self, Page)>, diesel::result::Error> {
-        use schema::modules::dsl::module_id;
-        use schema::modules::dsl::modules;
-        use schema::pages::dsl::pages;
-        let db = establish_database_connection();
-
-        modules.inner_join(pages).filter(module_id.eq(id)).load::<(Module, Page)>(&db)
     }
 
     fn delete(mod_id: i32) -> Result<usize, diesel::result::Error> {
