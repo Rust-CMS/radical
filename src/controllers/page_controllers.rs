@@ -58,12 +58,12 @@ pub async fn get_page_join_modules(req: HttpRequest) -> Result<HttpResponse, Cus
 
     let page = Page::read_one_join_on(page_id).map_err(map_sql_error)?;
 
-    let origin_page = page.get(0).unwrap().clone().0;
+    let origin_page = &page.get(0).ok_or(CustomHttpError::NotFound)?.0;
 
-    // cast the origin page that is always standard into a new object that has the moduels as a vec of children.
+    // cast the origin page that is always standard into a new object that has the modules as a vec of children.
     let mut res = PageModuleRelation {
         page_id: origin_page.page_id,
-        title: origin_page.title,
+        title: origin_page.title.to_owned(),
         time_created: origin_page.time_created,
         modules: Vec::new(),
     };
