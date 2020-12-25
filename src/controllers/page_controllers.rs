@@ -4,7 +4,7 @@ use crate::{models::{Joinable, Model}, page_models::PageModuleRelation};
 
 use crate::page_models::{MutPage, Page};
 
-use crate::errors_middleware::map_parsing_error;
+use crate::errors_middleware::map_int_parsing_error;
 use crate::errors_middleware::map_sql_error;
 use crate::errors_middleware::CustomHttpError;
 
@@ -19,7 +19,7 @@ pub async fn _get_root() -> impl Responder {
 /// BEGIN PAGE CONTROLLERS
 
 pub async fn create_page(req_body: String) -> Result<HttpResponse, CustomHttpError> {
-    let new_page: MutPage = serde_json::from_str(&req_body).expect("Did not correctly parse page.");
+    let new_page: MutPage = serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
 
     Page::create(&new_page).map_err(map_sql_error)?;
 
@@ -36,9 +36,9 @@ pub async fn get_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError>
     let page_id: i32 = req
         .match_info()
         .get("id")
-        .unwrap_or_default()
+        .ok_or(CustomHttpError::BadRequest)?
         .parse()
-        .map_err(map_parsing_error)?;
+        .map_err(map_int_parsing_error)?;
 
     let page: Page = Page::read_one(page_id).map_err(map_sql_error)?;
 
@@ -52,9 +52,9 @@ pub async fn get_page_join_modules(req: HttpRequest) -> Result<HttpResponse, Cus
     let page_id: i32 = req
         .match_info()
         .get("id")
-        .unwrap_or_default()
+        .ok_or(CustomHttpError::BadRequest)?
         .parse()
-        .map_err(map_parsing_error)?;
+        .map_err(map_int_parsing_error)?;
 
     let page = Page::read_one_join_on(page_id).map_err(map_sql_error)?;
 
@@ -82,13 +82,13 @@ pub async fn update_page(
     req_body: String,
 ) -> Result<HttpResponse, CustomHttpError> {
     let u_page: MutPage =
-        serde_json::from_str(&req_body).expect("Did not correctly parse update parse page.");
+        serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
     let page_id: i32 = req
         .match_info()
         .get("id")
-        .unwrap_or_default()
+        .ok_or(CustomHttpError::BadRequest)?
         .parse()
-        .map_err(map_parsing_error)?;
+        .map_err(map_int_parsing_error)?;
 
     Page::update(page_id, &u_page).map_err(map_sql_error)?;
 
@@ -99,9 +99,9 @@ pub async fn delete_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpErr
     let page_id: i32 = req
         .match_info()
         .get("id")
-        .unwrap_or_default()
+        .ok_or(CustomHttpError::BadRequest)?
         .parse()
-        .map_err(map_parsing_error)?;
+        .map_err(map_int_parsing_error)?;
 
     Page::delete(page_id).map_err(map_sql_error)?;
 

@@ -50,7 +50,7 @@ impl ResponseError for CustomHttpError {
     }
 }
 
-pub fn map_parsing_error(e: std::num::ParseIntError) -> CustomHttpError {
+pub fn map_int_parsing_error(e: std::num::ParseIntError) -> CustomHttpError {
     match e.kind() {
         std::num::IntErrorKind::InvalidDigit => CustomHttpError::BadRequest,
         _ => CustomHttpError::Unknown,

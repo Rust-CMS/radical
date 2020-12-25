@@ -1,7 +1,7 @@
 use actix_web::HttpResponse;
 use serde::{Serialize};
 
-use crate::errors_middleware::CustomHttpError;
+use crate::errors_middleware::{CustomHttpError};
 
 #[derive(Serialize)]
 pub struct HttpResponseBuilder<T> {
@@ -24,6 +24,6 @@ impl<Body: Serialize> HttpResponseBuilder<Body> {
             _ => HttpResponse::BadRequest()
         };
 
-        Ok(m.body(serde_json::to_string(&cm).unwrap()))
+        Ok(m.body(serde_json::to_string(&cm).or(Err(CustomHttpError::Unknown))?))
     }
 }
