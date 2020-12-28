@@ -20,16 +20,17 @@ pub struct Module {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "modules"]
 pub struct MutModule {
-    module_type_id: i32,
-    page_id: i32,
-    content: Option<String>
+    pub module_id: Option<i32>,
+    pub module_type_id: i32,
+    pub page_id: i32,
+    pub content: Option<String>
 }
 
 impl Model<Module, MutModule> for Module {
     fn create(new_module: &MutModule) -> Result<usize, diesel::result::Error> {
         let db = establish_database_connection();
 
-        Ok(diesel::insert_into(modules::table).values(new_module).execute(&db)?)
+        Ok(diesel::insert_or_ignore_into(modules::table).values(new_module).execute(&db)?)
     }
 
     fn read_one(mod_id: i32) -> Result<Self, diesel::result::Error> {
