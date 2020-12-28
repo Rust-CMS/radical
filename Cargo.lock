@@ -1297,6 +1297,7 @@ dependencies = [
 name = "rust-cms"
 version = "0.1.0"
 dependencies = [
+ "actix-rt",
  "actix-web",
  "async-trait",
  "chrono",
