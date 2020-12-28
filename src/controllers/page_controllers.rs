@@ -78,8 +78,8 @@ pub async fn get_page_join_modules(req: HttpRequest) -> Result<HttpResponse, Cus
 }
 
 pub async fn update_page(
-    req: HttpRequest,
     req_body: String,
+    req: HttpRequest,
 ) -> Result<HttpResponse, CustomHttpError> {
     let u_page: MutPage =
         serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
