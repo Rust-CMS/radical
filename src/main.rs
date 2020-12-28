@@ -22,6 +22,8 @@ mod page_models;
 mod module_routers;
 #[path = "./routers/page_routers.rs"]
 mod page_routers;
+#[cfg(test)]
+mod tests;
 
 use page_routers::PageRouter;
 use module_routers::ModuleRouter;

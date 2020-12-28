@@ -25,7 +25,8 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
-    title: String,
+    pub page_id: Option<i32>,
+    pub title: String,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -46,7 +47,7 @@ impl Model<Page, MutPage> for Page {
     fn create(new_page: &MutPage) -> Result<usize, diesel::result::Error> {
         let db = establish_database_connection();
 
-        Ok(diesel::insert_into(pages::table)
+        Ok(diesel::insert_or_ignore_into(pages::table)
             .values(new_page)
             .execute(&db)?)
     }

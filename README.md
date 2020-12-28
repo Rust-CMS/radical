@@ -1,14 +1,15 @@
 # RustCMS by Spencer Bills
 
-## DotEnv Settings Required:
-TODO: Create page in program that does this for you like Processwire does
+## Environment Variables
+This project utilizes DotEnv.
 
 ```
 DATABASE_URL (MySQL Connection string)
 ```
 
-### Dotenv Examples
+### DotEnv Examples
 
 ```
+// .env
 DATABASE_URL=mysql://rustcms:rustcms@localhost:3306/rustcms
 ```
