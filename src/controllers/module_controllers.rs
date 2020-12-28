@@ -10,6 +10,7 @@ use crate::errors_middleware::CustomHttpError;
 
 use crate::response_middleware::HttpResponseBuilder;
 
+/// Creates a module by passing a module-like JSON object.
 pub async fn create_module(req_body: String) -> Result<HttpResponse, CustomHttpError> {
     let new_module: MutModule = serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
 
@@ -18,12 +19,14 @@ pub async fn create_module(req_body: String) -> Result<HttpResponse, CustomHttpE
     HttpResponseBuilder::new(201, &new_module)
 }
 
+/// Gets all modules.
 pub async fn get_modules() -> Result<HttpResponse, CustomHttpError> {
     let modules = Module::read_all().map_err(map_sql_error)?;
 
     HttpResponseBuilder::new(200, &modules)
 }
 
+/// Gets one module by passing a module ID.
 pub async fn get_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
     let module_id: i32 = req
         .match_info()
@@ -37,6 +40,7 @@ pub async fn get_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpErro
     HttpResponseBuilder::new(200, &module)
 }
 
+/// Updates a module by passing a module-like JSON object and a module ID.
 pub async fn update_module(
     req_body: String,
     req: HttpRequest,
@@ -54,6 +58,7 @@ pub async fn update_module(
     HttpResponseBuilder::new(200, &new_module)
 }
 
+/// Deletes a module by passing a module ID.
 pub async fn delete_module(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
     let module_id: i32 = req
         .match_info()

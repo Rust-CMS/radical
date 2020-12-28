@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse, Responder};
+use actix_web::{HttpRequest, HttpResponse};
 
 use crate::{models::{Joinable, Model}, page_models::PageModuleRelation};
 
@@ -10,14 +10,7 @@ use crate::errors_middleware::CustomHttpError;
 
 use crate::response_middleware::HttpResponseBuilder;
 
-/// BEGIN ROOT CONTROLLERS
-
-pub async fn _get_root() -> impl Responder {
-    HttpResponse::Ok().body("unimplemented")
-}
-
-/// BEGIN PAGE CONTROLLERS
-
+/// Creates a page by passing a page-like JSON object.
 pub async fn create_page(req_body: String) -> Result<HttpResponse, CustomHttpError> {
     let new_page: MutPage = serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
 
@@ -26,12 +19,14 @@ pub async fn create_page(req_body: String) -> Result<HttpResponse, CustomHttpErr
     HttpResponseBuilder::new(201, &new_page)
 }
 
+/// Gets all pages.
 pub async fn get_pages() -> Result<HttpResponse, CustomHttpError> {
     let pages: Vec<Page> = Page::read_all().map_err(map_sql_error)?;
 
     HttpResponseBuilder::new(200, &pages)
 }
 
+/// Gets one page by ID.
 pub async fn get_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
     let page_id: i32 = req
         .match_info()
@@ -77,6 +72,7 @@ pub async fn get_page_join_modules(req: HttpRequest) -> Result<HttpResponse, Cus
     HttpResponseBuilder::new(200, &res)
 }
 
+/// Updates a page by passing it a page-like JSON object and page ID.
 pub async fn update_page(
     req_body: String,
     req: HttpRequest,
@@ -95,6 +91,7 @@ pub async fn update_page(
     HttpResponseBuilder::new(200, &u_page)
 }
 
+/// Deletes a page by passing an id.
 pub async fn delete_page(req: HttpRequest) -> Result<HttpResponse, CustomHttpError> {
     let page_id: i32 = req
         .match_info()

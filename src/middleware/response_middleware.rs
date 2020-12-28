@@ -3,6 +3,8 @@ use serde::{Serialize};
 
 use crate::errors_middleware::{CustomHttpError};
 
+/// A generic HTTP responder. Different than actix-web's one.
+/// This works better as it allows for a consistent JSON response layout across the entire API.
 #[derive(Serialize)]
 pub struct HttpResponseBuilder<T> {
     code: u16,
@@ -10,6 +12,9 @@ pub struct HttpResponseBuilder<T> {
 }
 
 impl<Body: Serialize> HttpResponseBuilder<Body> {
+    /// Generates a new HTTP response builder.
+    /// First, creates a new instance of the struct. 
+    /// Then it matches the code to an HTTP response, and finally sends back the HttpResponseBuilder object.
     pub fn new(code: u16, message: &Body) -> Result<HttpResponse, CustomHttpError> {
         let cm = HttpResponseBuilder {
             code,
