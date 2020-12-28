@@ -15,9 +15,9 @@ pub enum CustomHttpError {
 impl CustomHttpError {
     pub fn name(&self) -> String {
         match self {
-            Self::BadRequest => "Bad Request".to_string(),
-            Self::Unknown => "Internal server error".to_string(),
-            Self::NotFound => "Not Found".to_string(),
+            Self::BadRequest => String::from("Bad Request"),
+            Self::Unknown => String::from("Internal server error"),
+            Self::NotFound => String::from("Not Found"),
         }
     }
 }
