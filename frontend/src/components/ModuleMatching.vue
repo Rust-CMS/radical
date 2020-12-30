@@ -35,6 +35,5 @@ export default {
             this.modules = res.data.message.modules.map(module => modules[module.module_type_id]);
 		},
     },
-    
 };
 </script>
