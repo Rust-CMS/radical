@@ -6,6 +6,12 @@
 
 <script>
 export default {
-    name: "header_title"
+    name: "header_title",
+    props: {
+        content: {
+            type: String,
+            required: false
+        }
+    }
 }
 </script>

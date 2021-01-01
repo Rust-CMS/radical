@@ -1,16 +1,16 @@
 <template>
-    <p>
-        {{ content }}
-    </p>
+    <div>
+        <img :src="content">
+    </div>
 </template>
 
 <script>
 export default {
-    name: "paragraph",
+    name: "image",
     props: {
-        content: {
+        src: {
             type: String,
-            required: false
+            required: true
         }
     }
 }

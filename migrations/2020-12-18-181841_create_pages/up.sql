@@ -10,7 +10,10 @@ CREATE TABLE module_types (
     module_desc varchar(500) NOT NULL
 );
 
+/* Doing each in a separate statement since it's more readable. */
 INSERT INTO module_types (title, module_desc) VALUES ('paragraph', 'A paragraph module for general text.');
+INSERT INTO module_types (title, module_desc) VALUES ('header', 'A header module for displaying things in large text.');
+INSERT INTO module_types (title, module_desc) VALUES ('image', 'Allows for inserting images into the page.');
 
 CREATE TABLE modules (
     module_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
