@@ -8,9 +8,9 @@
 export default {
     name: "image",
     props: {
-        src: {
+        content: {
             type: String,
-            required: true
+            required: false
         }
     }
 }
