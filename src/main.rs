@@ -56,7 +56,7 @@ async fn main() -> std::io::Result<()> {
                     .service(ModuleRouter::new()),
             )
             .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
-            .service(web::scope("/").route("", web::get().to(vue_index)))
+            .service(web::scope("/").route("*", web::get().to(vue_index)))
     })
     .bind("127.0.0.1:9090")?
     .run()
