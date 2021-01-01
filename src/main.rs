@@ -2,31 +2,33 @@
 
 use actix_web::{middleware, web, App, HttpServer};
 
+use actix_files as fs;
+
 /// All top level module declarations should go in main.rs.
 /// This allows you to then `use crate::module_controllers` in other files.
-#[path = "./controllers/module_controllers.rs"]
-mod module_controllers;
-#[path = "./controllers/page_controllers.rs"]
-mod page_controllers;
 #[path = "./middleware/errors_middleware.rs"]
 mod errors_middleware;
-#[path = "./middleware/response_middleware.rs"]
-mod response_middleware;
 #[path = "./models/models.rs"]
 mod models;
+#[path = "./controllers/module_controllers.rs"]
+mod module_controllers;
 #[path = "./models/module_models.rs"]
 mod module_models;
-#[path = "./models/page_models.rs"]
-mod page_models;
 #[path = "./routers/module_routers.rs"]
 mod module_routers;
+#[path = "./controllers/page_controllers.rs"]
+mod page_controllers;
+#[path = "./models/page_models.rs"]
+mod page_models;
 #[path = "./routers/page_routers.rs"]
 mod page_routers;
+#[path = "./middleware/response_middleware.rs"]
+mod response_middleware;
 #[cfg(test)]
 mod tests;
 
-use page_routers::PageRouter;
 use module_routers::ModuleRouter;
+use page_routers::PageRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -48,6 +50,11 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(PageRouter::new())
                     .service(ModuleRouter::new()),
+            )
+            .service(
+                fs::Files::new("/", "./public")
+                    .show_files_listing()
+                    .index_file("index.html"),
             )
     })
     .bind("127.0.0.1:9090")?

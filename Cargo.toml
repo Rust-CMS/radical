@@ -16,3 +16,4 @@ dotenv = "0.15.0"
 chrono = { version = "0.4", features = ["serde"] }
 async-trait = "0.1.42"
 thiserror = "1.0.22"
+actix-files = "0.5.0"
