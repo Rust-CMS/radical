@@ -8,6 +8,10 @@
 <script>
 import { get } from "axios";
 
+/**
+ * This is the home page. Style this and change it for however you would like your landing page to look.
+ * @displayName Root
+ */
 export default {
     name: "root",
     data() {

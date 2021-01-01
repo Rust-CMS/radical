@@ -1,8 +1,5 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link>
-    </div>
     <router-view/>
   </div>
 </template>
@@ -25,5 +22,9 @@
   font-style: normal;
   font-weight: 600;
   src: url("./fonts/Montserrat-SemiBold.ttf");
+}
+
+body {
+  font-family: "montserrat";
 }
 </style>
