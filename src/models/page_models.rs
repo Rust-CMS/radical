@@ -9,7 +9,7 @@ mod schema;
 use crate::{models::Joinable, module_models::Module};
 
 use super::{
-    models::{establish_database_connection, Model},
+    models::{Model},
 };
 use schema::pages;
 
@@ -44,55 +44,49 @@ pub struct PageModuleRelation {
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
 impl Model<Page, MutPage> for Page {
-    fn create(new_page: &MutPage) -> Result<usize, diesel::result::Error> {
-        let db = establish_database_connection();
+    fn create(new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
 
         Ok(diesel::insert_or_ignore_into(pages::table)
             .values(new_page)
-            .execute(&db)?)
+            .execute(db)?)
     }
 
-    fn read_one(id: i32) -> Result<Self, diesel::result::Error> {
+    fn read_one(id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
-        let db = establish_database_connection();
 
-        pages.filter(page_id.eq(id)).first::<Self>(&db)
+        pages.filter(page_id.eq(id)).first::<Self>(db)
     }
 
-    fn read_all() -> Result<Vec<Self>, diesel::result::Error> {
-        let db = establish_database_connection();
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
 
-        pages::table.load::<Self>(&db)
+        pages::table.load::<Self>(db)
     }
 
-    fn update(id: i32, new_page: &MutPage) -> Result<usize, diesel::result::Error> {
+    fn update(id: i32, new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
-        let db = establish_database_connection();
 
         Ok(diesel::update(pages.filter(page_id.eq(id)))
             .set(new_page)
-            .execute(&db)?)
+            .execute(db)?)
     }
 
-    fn delete(id: i32) -> Result<usize, diesel::result::Error> {
+    fn delete(id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
-        let db = establish_database_connection();
 
-        Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(&db)?)
+        Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(db)?)
     }
 }
 
 /// Separate implementation for joinable trait.
 impl Joinable<Page, Module> for Page {
-    fn read_one_join_on(id: i32) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
+    fn read_one_join_on(id: i32, db: &MysqlConnection) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
         use schema::pages::dsl::page_id;
         use schema::pages::dsl::pages;
         use schema::modules::dsl::modules;
-        let db = establish_database_connection();
 
-        pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(&db)
+        pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(db)
     }
 }

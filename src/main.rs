@@ -3,7 +3,10 @@
 use actix_web::{middleware, web, App, HttpServer};
 
 use actix_files as fs;
-
+#[path = "./controllers/config_controllers.rs"]
+mod config_controllers;
+#[path = "./routers/config_routers.rs"]
+mod config_routers;
 /// All top level module declarations should go in main.rs.
 /// This allows you to then `use crate::module_controllers` in other files.
 #[path = "./middleware/errors_middleware.rs"]
@@ -24,9 +27,11 @@ mod page_models;
 mod page_routers;
 #[path = "./middleware/response_middleware.rs"]
 mod response_middleware;
+
 #[cfg(test)]
 mod tests;
 
+use config_routers::ConfigRouter;
 use module_routers::ModuleRouter;
 use page_controllers::index;
 use page_routers::PageRouter;
@@ -50,12 +55,15 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/v1")
                     .service(PageRouter::new())
-                    .service(ModuleRouter::new()),
+                    .service(ModuleRouter::new())
+                    .service(ConfigRouter::new()),
             )
             .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
             .default_service(web::route().to(index))
+            .app_data(models::establish_database_connection())
     })
     .bind("127.0.0.1:9090")?
+    .workers(1)
     .run()
     .await
 }
