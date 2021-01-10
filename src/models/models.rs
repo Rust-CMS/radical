@@ -1,24 +1,23 @@
 use actix_web::web;
 use diesel::{
     r2d2::{ConnectionManager, Pool, PoolError, PooledConnection},
-    Connection, MysqlConnection,
+    MysqlConnection,
 };
-use dotenv::dotenv;
-use std::env;
+use std::{fs::File, io::BufReader};
 
-use crate::errors_middleware::CustomHttpError;
+use crate::{config_controllers::LocalConfig, errors_middleware::CustomHttpError};
 
 /// CRUD implementation.
-pub trait Model<TQueryable, TMutable> {
+pub trait Model<TQueryable, TMutable, TPrimary> {
     fn create(new: &TMutable, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
-    fn read_one(id: i32, db: &MysqlConnection) -> Result<TQueryable, diesel::result::Error>;
+    fn read_one(id: TPrimary, db: &MysqlConnection) -> Result<TQueryable, diesel::result::Error>;
     fn read_all(db: &MysqlConnection) -> Result<Vec<TQueryable>, diesel::result::Error>;
     fn update(
-        id: i32,
+        id: TPrimary,
         new: &TMutable,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error>;
-    fn delete(id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
+    fn delete(id: TPrimary, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
 }
 
 /// Trait that enforces a  Model to be joinable if that is desired.
@@ -35,11 +34,20 @@ pub trait Joinable<TLeft, TRight> {
 pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
 pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;
 
-pub fn establish_database_connection() -> MySQLPool {
-    dotenv().ok();
+pub fn establish_database_connection() -> Option<MySQLPool> {
+    let config_file = File::open("./rcms.json").expect("Failed to open config file.");
+    let reader = BufReader::new(config_file);
+    let conf: LocalConfig = serde_json::from_reader(reader).expect("Failed to read config file.");
+    let db_url = format!(
+        "mysql://{}:{}@{}:{}/{}",
+        conf.mysql_username?,
+        conf.mysql_password?,
+        conf.mysql_url?,
+        conf.mysql_port?,
+        conf.mysql_database?
+    );
 
-    let db_url = env::var("DATABASE_URL").expect("Environment variable DATABASE_URL must be set.");
-    init_pool(&db_url).expect("Failed to create pool.")
+    Some(init_pool(&db_url).expect("Failed to create pool."))
 }
 
 // https://dev.to/werner/practical-rust-web-development-connection-pool-46f4

@@ -23,6 +23,13 @@ table! {
     }
 }
 
+table! {
+    web_config (config_key) {
+        config_key -> Varchar,
+        config_val -> Varchar,
+    }
+}
+
 joinable!(modules -> module_types (module_type_id));
 joinable!(modules -> pages (page_id));
 
@@ -30,4 +37,5 @@ allow_tables_to_appear_in_same_query!(
     module_types,
     modules,
     pages,
+    web_config,
 );

@@ -3,6 +3,9 @@
 use actix_web::{middleware, web, App, HttpServer};
 
 use actix_files as fs;
+
+#[path = "./schemas/schema.rs"]
+mod schema;
 #[path = "./controllers/config_controllers.rs"]
 mod config_controllers;
 #[path = "./routers/config_routers.rs"]
@@ -23,6 +26,8 @@ mod module_routers;
 mod page_controllers;
 #[path = "./models/page_models.rs"]
 mod page_models;
+#[path = "./models/config_models.rs"]
+mod config_models;
 #[path = "./routers/page_routers.rs"]
 mod page_routers;
 #[path = "./middleware/response_middleware.rs"]
@@ -31,7 +36,7 @@ mod response_middleware;
 #[cfg(test)]
 mod tests;
 
-use config_routers::ConfigRouter;
+use config_routers::{DatabaseConfigRouter, LocalConfigRouter};
 use module_routers::ModuleRouter;
 use page_controllers::index;
 use page_routers::PageRouter;
@@ -44,7 +49,9 @@ extern crate diesel;
 /// All routes are defined here.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let pool = models::establish_database_connection().unwrap();
+
+    HttpServer::new(move || {
         App::new()
             .wrap(
                 middleware::DefaultHeaders::new()
@@ -56,14 +63,15 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(PageRouter::new())
                     .service(ModuleRouter::new())
-                    .service(ConfigRouter::new()),
+                    .service(LocalConfigRouter::new())
+                    .service(DatabaseConfigRouter::new()),
             )
             .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
             .default_service(web::route().to(index))
-            .app_data(models::establish_database_connection())
+            .data(pool.clone())
     })
     .bind("127.0.0.1:9090")?
-    .workers(1)
+    .workers(15)
     .run()
     .await
 }

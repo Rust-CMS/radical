@@ -3,15 +3,12 @@ use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-#[path = "../schemas/schema.rs"]
-mod schema;
-
 use crate::{models::Joinable, module_models::Module};
 
 use super::{
     models::{Model},
 };
-use schema::pages;
+use crate::schema::pages;
 
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
@@ -43,7 +40,7 @@ pub struct PageModuleRelation {
 /// Every one of these functions exports only what they need out of `dsl`.
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
-impl Model<Page, MutPage> for Page {
+impl Model<Page, MutPage, i32> for Page {
     fn create(new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
 
         Ok(diesel::insert_or_ignore_into(pages::table)
@@ -52,8 +49,8 @@ impl Model<Page, MutPage> for Page {
     }
 
     fn read_one(id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_id;
+        use crate::schema::pages::dsl::pages;
 
         pages.filter(page_id.eq(id)).first::<Self>(db)
     }
@@ -64,8 +61,8 @@ impl Model<Page, MutPage> for Page {
     }
 
     fn update(id: i32, new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_id;
+        use crate::schema::pages::dsl::pages;
 
         Ok(diesel::update(pages.filter(page_id.eq(id)))
             .set(new_page)
@@ -73,8 +70,8 @@ impl Model<Page, MutPage> for Page {
     }
 
     fn delete(id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_id;
+        use crate::schema::pages::dsl::pages;
 
         Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(db)?)
     }
@@ -83,9 +80,9 @@ impl Model<Page, MutPage> for Page {
 /// Separate implementation for joinable trait.
 impl Joinable<Page, Module> for Page {
     fn read_one_join_on(id: i32, db: &MysqlConnection) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
-        use schema::modules::dsl::modules;
+        use crate::schema::pages::dsl::page_id;
+        use crate::schema::pages::dsl::pages;
+        use crate::schema::modules::dsl::modules;
 
         pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(db)
     }

@@ -23,3 +23,10 @@ CREATE TABLE modules (
     FOREIGN KEY (page_id) REFERENCES pages(page_id) ON DELETE CASCADE,
     FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE
 );
+
+CREATE TABLE web_config (
+    config_key VARCHAR(100) PRIMARY KEY NOT NULL,
+    config_val VARCHAR(100) NOT NULL
+);
+
+INSERT INTO web_config (config_key, config_val) VALUES ("setup", "start");
