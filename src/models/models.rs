@@ -1,6 +1,6 @@
-use diesel::{Connection, MysqlConnection};
-use dotenv::dotenv;
 use std::env;
+use dotenv::dotenv;
+use diesel::{Connection, MysqlConnection};
 
 /// CRUD implementation.
 pub trait Model<TQueryable, TMutable> {

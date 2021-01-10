@@ -1,3 +1,4 @@
+use actix_files::NamedFile;
 use actix_web::{HttpRequest, HttpResponse};
 
 use crate::{models::{Joinable, Model}, page_models::PageModuleRelation};
@@ -9,6 +10,10 @@ use crate::errors_middleware::map_sql_error;
 use crate::errors_middleware::CustomHttpError;
 
 use crate::response_middleware::HttpResponseBuilder;
+
+pub async fn index() -> Result<NamedFile, CustomHttpError> {
+    actix_files::NamedFile::open("./public/index.html").or(Err(CustomHttpError::NotFound))
+}
 
 /// Creates a page by passing a page-like JSON object.
 pub async fn create_page(req_body: String) -> Result<HttpResponse, CustomHttpError> {

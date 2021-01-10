@@ -1,6 +1,6 @@
 #![feature(int_error_matching)]
 
-use actix_web::{App, HttpServer, middleware, web};
+use actix_web::{middleware, web, App, HttpServer};
 
 use actix_files as fs;
 
@@ -28,14 +28,11 @@ mod response_middleware;
 mod tests;
 
 use module_routers::ModuleRouter;
+use page_controllers::index;
 use page_routers::PageRouter;
 
 #[macro_use]
 extern crate diesel;
-
-async fn vue_index() -> Result<actix_files::NamedFile, std::io::Error> {
-    actix_files::NamedFile::open("./public/index.html")
-}
 
 /// The main function is replaced by actix_web::main.
 /// This allows main to be async and register the HttpServer.
@@ -56,7 +53,7 @@ async fn main() -> std::io::Result<()> {
                     .service(ModuleRouter::new()),
             )
             .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
-            .service(web::scope("/").route("*", web::get().to(vue_index)))
+            .default_service(web::route().to(index))
     })
     .bind("127.0.0.1:9090")?
     .run()
