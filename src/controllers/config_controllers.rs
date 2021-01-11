@@ -34,6 +34,9 @@ pub async fn update_local_config(
         .write(true)
         .open("./rcms.json")
         .or(Err(CustomHttpError::Unknown))?;
+
+    // delete all previous contents of file.
+    config_file.set_len(0).or(Err(CustomHttpError::Unknown))?;
     serde_json::to_writer(config_file, &conf.0).or(Err(CustomHttpError::Unknown))?;
 
     HttpResponseBuilder::new(200, &"Unimplemented.")
