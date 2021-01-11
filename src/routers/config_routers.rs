@@ -5,7 +5,7 @@ pub struct LocalConfigRouter;
 
 impl LocalConfigRouter {
     pub fn new() -> Scope {
-        web::scope("/config/local")
+        web::scope("/localConfig")
             .route("", web::get().to( read_all_local_config))
             .route("", web::put().to( update_local_config))
     }

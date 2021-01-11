@@ -4,10 +4,10 @@ use actix_web::{middleware, web, App, HttpServer};
 
 use actix_files as fs;
 
-#[path = "./schemas/schema.rs"]
-mod schema;
 #[path = "./controllers/config_controllers.rs"]
 mod config_controllers;
+#[path = "./models/config_models.rs"]
+mod config_models;
 #[path = "./routers/config_routers.rs"]
 mod config_routers;
 /// All top level module declarations should go in main.rs.
@@ -26,12 +26,12 @@ mod module_routers;
 mod page_controllers;
 #[path = "./models/page_models.rs"]
 mod page_models;
-#[path = "./models/config_models.rs"]
-mod config_models;
 #[path = "./routers/page_routers.rs"]
 mod page_routers;
 #[path = "./middleware/response_middleware.rs"]
 mod response_middleware;
+#[path = "./schemas/schema.rs"]
+mod schema;
 
 #[cfg(test)]
 mod tests;
@@ -55,6 +55,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(
                 middleware::DefaultHeaders::new()
+                    .header("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS")
+                    .header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
                     .header("X-Version", "0.1")
                     .header("Content-Type", "application/json")
                     .header("Access-Control-Allow-Origin", "*"),
