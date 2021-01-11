@@ -53,7 +53,7 @@ export default {
 	methods: {
 		async get_current_data() {
 			try {
-				let req = await Axios.get("/localConfig");
+				let req = await Axios.get("/v1/localConfig");
 
 				let req_data = req.data.message;
 
@@ -67,7 +67,11 @@ export default {
 		async submit(e) {
 			e.preventDefault();
 
-			await Axios.put("/localConfig", this.config);
+			await Axios.put("/v1/localConfig", this.config);
+			await Axios.put("/v1/config/setup", {
+				config_key: "setup",
+				config_val: "site"
+			});
 		},
 	},
 };

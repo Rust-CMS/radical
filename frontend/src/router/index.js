@@ -1,15 +1,21 @@
-import Axios from 'axios'
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Root from '../pages/Root.vue'
-import SetupStart from "../pages/setup/SetupStart.vue"
-Vue.use(VueRouter)
+import Axios from 'axios';
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import Root from '../pages/Root.vue';
+import SetupStart from "../pages/setup/SetupStart.vue";
+import SiteSetup from "../pages/setup/SiteSetup.vue";
+Vue.use(VueRouter);
 
 const routes = [
 	{
-		path: "/setup",
-		name: "Setup",
+		path: "/start",
+		name: "start",
 		component: SetupStart
+	},
+	{
+		path: "/site",
+		name: "site",
+		component: SiteSetup
 	},
 	{
 		path: '/',
@@ -21,20 +27,24 @@ const routes = [
 
 
 var verifySetup = async (to, from, next) => {
-	let allowed_names = ["Setup"];
+	let allowed_names = ["setup", "site", "assets", "sites"];
 
-	if (allowed_names.includes(to.name)) 
+	if (allowed_names.includes(to.name))
 		return next();
 
-	let req = await Axios.get("/config/setup").catch(() => to("Setup"));
+	let req = await Axios.get("./v1/config/setup").catch(() => to("Setup"));
 
 	let req_data = req.data.message;
 
 	if (!req_data)
-		return next("Setup");
+		return next("start");
 
-	if (req_data.config_val === "start")
-		return next("Setup");
+	let conf_val = req_data.config_val;
+
+	const setup_steps = ["start", "site", "Root"]
+
+	if (setup_steps.includes(conf_val))
+		next(conf_val)
 
 	return next();
 }
