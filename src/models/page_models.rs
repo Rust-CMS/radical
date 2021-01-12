@@ -2,6 +2,8 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
+use askama::Template;
+
 
 use crate::{models::Joinable, module_models::Module};
 
@@ -13,7 +15,7 @@ use crate::schema::pages;
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
-    pub page_id: i32,
+    pub url_path: String,
     pub title: String,
     pub time_created: NaiveDateTime,
 }
@@ -22,13 +24,14 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
-    pub page_id: Option<i32>,
+    pub url_path: String,
     pub title: String,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Serialize, Clone, Template)]
+#[template(path = "index.html")]
 pub struct PageModuleRelation {
-    pub page_id: i32,
+    pub url_path: String,
     pub title: String,
     pub time_created: NaiveDateTime,
     pub modules: Vec<Module>
@@ -40,7 +43,7 @@ pub struct PageModuleRelation {
 /// Every one of these functions exports only what they need out of `dsl`.
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
-impl Model<Page, MutPage, i32> for Page {
+impl Model<Page, MutPage, String> for Page {
     fn create(new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
 
         Ok(diesel::insert_or_ignore_into(pages::table)
@@ -48,11 +51,11 @@ impl Model<Page, MutPage, i32> for Page {
             .execute(db)?)
     }
 
-    fn read_one(id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
-        use crate::schema::pages::dsl::page_id;
+    fn read_one(id: String, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
+        use crate::schema::pages::dsl::url_path;
         use crate::schema::pages::dsl::pages;
 
-        pages.filter(page_id.eq(id)).first::<Self>(db)
+        pages.filter(url_path.eq(id)).first::<Self>(db)
     }
 
     fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
@@ -60,30 +63,30 @@ impl Model<Page, MutPage, i32> for Page {
         pages::table.load::<Self>(db)
     }
 
-    fn update(id: i32, new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::page_id;
+    fn update(id: String, new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use crate::schema::pages::dsl::url_path;
         use crate::schema::pages::dsl::pages;
 
-        Ok(diesel::update(pages.filter(page_id.eq(id)))
+        Ok(diesel::update(pages.filter(url_path.eq(id)))
             .set(new_page)
             .execute(db)?)
     }
 
-    fn delete(id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::page_id;
+    fn delete(id: String, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use crate::schema::pages::dsl::url_path;
         use crate::schema::pages::dsl::pages;
 
-        Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(db)?)
+        Ok(diesel::delete(pages.filter(url_path.eq(id))).execute(db)?)
     }
 }
 
 /// Separate implementation for joinable trait.
-impl Joinable<Page, Module> for Page {
-    fn read_one_join_on(id: i32, db: &MysqlConnection) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
-        use crate::schema::pages::dsl::page_id;
+impl Joinable<Page, Module, String> for Page {
+    fn read_one_join_on(id: String, db: &MysqlConnection) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
+        use crate::schema::pages::dsl::url_path;
         use crate::schema::pages::dsl::pages;
         use crate::schema::modules::dsl::modules;
 
-        pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(db)
+        pages.inner_join(modules).filter(url_path.eq(id)).load::<(Page, Module)>(db)
     }
 }

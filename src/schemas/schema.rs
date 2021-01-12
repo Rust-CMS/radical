@@ -10,14 +10,14 @@ table! {
     modules (module_id) {
         module_id -> Integer,
         module_type_id -> Integer,
-        page_id -> Integer,
-        content -> Nullable<Text>,
+        page_url -> Varchar,
+        content -> Text,
     }
 }
 
 table! {
-    pages (page_id) {
-        page_id -> Integer,
+    pages (url_path) {
+        url_path -> Varchar,
         title -> Varchar,
         time_created -> Timestamp,
     }
@@ -31,7 +31,7 @@ table! {
 }
 
 joinable!(modules -> module_types (module_type_id));
-joinable!(modules -> pages (page_id));
+joinable!(modules -> pages (page_url));
 
 allow_tables_to_appear_in_same_query!(
     module_types,

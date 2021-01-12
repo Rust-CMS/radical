@@ -1,17 +1,16 @@
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
-
 use super::models::{Model};
 
 use crate::schema::modules;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Module {
-    module_id: i32,
-    module_type_id: i32,
-    page_id: i32,
-    content: Option<String>,
+    pub module_id: i32,
+    pub module_type_id: i32,
+    pub page_url: String,
+    pub content: String,
 }
 
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
@@ -19,7 +18,7 @@ pub struct Module {
 pub struct MutModule {
     pub module_id: Option<i32>,
     pub module_type_id: i32,
-    pub page_id: i32,
+    pub page_url: String,
     pub content: Option<String>,
 }
 
