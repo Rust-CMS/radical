@@ -28,7 +28,7 @@ fn parse_page(
     // Parsing of the tuples starts here.
     for tuple in page_vec {
         let module = tuple.1;
-        res.fields.v.insert(String::from("test"), module);
+        res.fields.v.insert(module.title.clone(), module);
     }
 
     Ok(res)
