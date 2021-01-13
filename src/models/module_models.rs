@@ -10,7 +10,7 @@ pub struct Module {
     pub module_id: i32,
     pub module_type_id: i32,
     pub title: String,
-    pub page_url: String,
+    pub page_name: String,
     pub content: String,
 }
 
@@ -20,7 +20,7 @@ pub struct MutModule {
     pub module_id: Option<i32>,
     pub module_type_id: i32,
     pub title: String,
-    pub page_url: String,
+    pub page_name: String,
     pub content: Option<String>,
 }
 

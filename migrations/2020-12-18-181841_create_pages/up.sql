@@ -1,6 +1,7 @@
 CREATE TABLE pages (
-    url_path varchar(500) NOT NULL PRIMARY KEY,
-    title varchar(500) NOT NULL,
+    page_name varchar(500) NOT NULL PRIMARY KEY,
+    page_url varchar(100) NOT NULL,
+    page_title varchar(500) NOT NULL,
     time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -19,9 +20,9 @@ CREATE TABLE modules (
     module_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
     module_type_id int NOT NULL,
     title varchar(100) NOT NULL,
-    page_url varchar(500) NOT NULL,
+    page_name varchar(500) NOT NULL,
     content TEXT NOT NULL,
-    FOREIGN KEY (page_url) REFERENCES pages(url_path) ON DELETE CASCADE,
+    FOREIGN KEY (page_name) REFERENCES pages(page_name) ON DELETE CASCADE,
     FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE,
     UNIQUE (title)
 );
