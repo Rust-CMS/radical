@@ -1,9 +1,14 @@
+use std::collections::HashMap;
+
 use actix_web::{web, HttpRequest, HttpResponse};
+use handlebars::Handlebars;
 use module_models::Module;
 
-use crate::{models::{pool_handler, Joinable, Model, MySQLPool}, module_models, page_models::{ModuleHash, PageModuleRelation}};
-
-use askama::Template;
+use crate::{
+    models::{pool_handler, Joinable, Model, MySQLPool},
+    module_models,
+    page_models::PageModuleRelation,
+};
 
 use crate::page_models::{MutPage, Page};
 
@@ -12,23 +17,22 @@ use crate::errors_middleware::CustomHttpError;
 
 use crate::response_middleware::HttpResponseBuilder;
 
-fn parse_page(
-    page_vec: Vec<(Page, Module)>,
-) -> Result<PageModuleRelation, CustomHttpError> {
+fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, CustomHttpError> {
     let origin_page = &page_vec.get(0).ok_or(CustomHttpError::NotFound)?.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
     let mut res = PageModuleRelation {
-        url_path: origin_page.url_path.to_string(),
+        page_name: origin_page.page_name.to_string(),
+        url_path: origin_page.page_url.to_string(),
         title: origin_page.title.to_string(),
         time_created: origin_page.time_created,
-        fields: ModuleHash::new()
+        fields: HashMap::new(),
     };
 
     // Parsing of the tuples starts here.
     for tuple in page_vec {
         let module = tuple.1;
-        res.fields.v.insert(module.title.clone(), module);
+        res.fields.insert(module.title.clone(), module);
     }
 
     Ok(res)
@@ -37,18 +41,20 @@ fn parse_page(
 pub async fn display_page(
     req: web::HttpRequest,
     pool: web::Data<MySQLPool>,
+    hb: web::Data<Handlebars<'_>>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    // Select the page
+    // remove 0, since it wil always be blank.
+
     let page_vec = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
 
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
 
-    let s: String = pagemodule.render().unwrap();
+    let s = hb.render(&pagemodule.page_name, &pagemodule).unwrap();
 
-    Ok(HttpResponse::Ok().content_type("text/html").body(&s))
+    Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
 
 /// Creates a page by passing a page-like JSON object.
