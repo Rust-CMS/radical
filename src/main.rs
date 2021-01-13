@@ -38,7 +38,6 @@ mod tests;
 
 use config_routers::{DatabaseConfigRouter, LocalConfigRouter};
 use module_routers::ModuleRouter;
-use page_controllers::index;
 use page_routers::PageRouter;
 
 #[macro_use]
@@ -70,7 +69,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
             .service(fs::Files::new("/sites", "./public/sites").show_files_listing())
-            .default_service(web::route().to(index))
+            .default_service(web::get().to(page_controllers::display_page))
             .data(pool.clone())
     })
     .bind("127.0.0.1:9090")?

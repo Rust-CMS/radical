@@ -11,7 +11,7 @@ use models::Model;
 
 use crate::{
     config_models,
-    errors_middleware::{map_int_parsing_error, map_sql_error, CustomHttpError},
+    errors_middleware::{map_sql_error, CustomHttpError},
     models::{self, pool_handler, MySQLPool},
     response_middleware::HttpResponseBuilder,
 };

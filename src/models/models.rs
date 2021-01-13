@@ -24,9 +24,9 @@ pub trait Model<TQueryable, TMutable, TPrimary> {
 /// Usually used for inner joins in this program.
 /// If implemented another way, make sure to follow the generic labelling.
 /// First parameter MUST be the left table, and second parameter MUST be the right table.
-pub trait Joinable<TLeft, TRight> {
+pub trait Joinable<TLeft, TRight, TPrimary> {
     fn read_one_join_on(
-        id: i32,
+        id: TPrimary,
         db: &MysqlConnection,
     ) -> Result<Vec<(TLeft, TRight)>, diesel::result::Error>;
 }

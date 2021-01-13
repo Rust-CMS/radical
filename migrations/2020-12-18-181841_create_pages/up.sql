@@ -1,5 +1,5 @@
 CREATE TABLE pages (
-    page_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    url_path varchar(500) NOT NULL PRIMARY KEY,
     title varchar(500) NOT NULL,
     time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -18,10 +18,12 @@ INSERT INTO module_types (title, module_desc) VALUES ('image', 'Allows for inser
 CREATE TABLE modules (
     module_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
     module_type_id int NOT NULL,
-    page_id int NOT NULL,
-    content TEXT,
-    FOREIGN KEY (page_id) REFERENCES pages(page_id) ON DELETE CASCADE,
-    FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE
+    title varchar(100) NOT NULL,
+    page_url varchar(500) NOT NULL,
+    content TEXT NOT NULL,
+    FOREIGN KEY (page_url) REFERENCES pages(url_path) ON DELETE CASCADE,
+    FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE,
+    UNIQUE (title)
 );
 
 CREATE TABLE web_config (
