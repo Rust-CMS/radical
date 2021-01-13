@@ -67,8 +67,7 @@ async fn main() -> std::io::Result<()> {
                     .service(LocalConfigRouter::new())
                     .service(DatabaseConfigRouter::new()),
             )
-            .service(fs::Files::new("/assets", "./public/assets").show_files_listing())
-            .service(fs::Files::new("/sites", "./public/sites").show_files_listing())
+            .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
             .default_service(web::get().to(page_controllers::display_page))
             .data(pool.clone())
     })
