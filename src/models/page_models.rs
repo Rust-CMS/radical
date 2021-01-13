@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use askama::Template;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
@@ -14,7 +13,10 @@ use crate::schema::pages;
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
-    pub url_path: String,
+    /// This should match the name of the HTML file.
+    pub page_name: String,
+    /// This should be the path which the program matches on.
+    pub page_url: String,
     pub title: String,
     pub time_created: NaiveDateTime,
 }
@@ -23,23 +25,19 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
-    pub url_path: String,
-    pub title: String,
+    pub page_name: String,
+    pub page_url: String,
+    pub page_title: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct ModuleHash {
-    pub v: HashMap<String, Module>,
-}
-
-#[derive(Debug, Serialize, Clone, Template)]
-#[template(path = "index.html")]
 pub struct PageModuleRelation {
+    pub page_name: String,
     pub url_path: String,
     pub title: String,
     pub time_created: NaiveDateTime,
     /// the key of the hashmap is the `title` of the module, and the rest is the module.
-    pub fields: ModuleHash,
+    pub fields: HashMap<String, Module>,
 }
 
 /// Implementation for Page restricted by models.rs trait.
@@ -57,9 +55,9 @@ impl Model<Page, MutPage, String> for Page {
 
     fn read_one(id: String, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
         use crate::schema::pages::dsl::pages;
-        use crate::schema::pages::dsl::url_path;
+        use crate::schema::pages::dsl::page_name;
 
-        pages.filter(url_path.eq(id)).first::<Self>(db)
+        pages.filter(page_name.eq(id)).first::<Self>(db)
     }
 
     fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
@@ -72,18 +70,18 @@ impl Model<Page, MutPage, String> for Page {
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
         use crate::schema::pages::dsl::pages;
-        use crate::schema::pages::dsl::url_path;
+        use crate::schema::pages::dsl::page_name;
 
-        Ok(diesel::update(pages.filter(url_path.eq(id)))
+        Ok(diesel::update(pages.filter(page_name.eq(id)))
             .set(new_page)
             .execute(db)?)
     }
 
     fn delete(id: String, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         use crate::schema::pages::dsl::pages;
-        use crate::schema::pages::dsl::url_path;
+        use crate::schema::pages::dsl::page_name;
 
-        Ok(diesel::delete(pages.filter(url_path.eq(id))).execute(db)?)
+        Ok(diesel::delete(pages.filter(page_name.eq(id))).execute(db)?)
     }
 }
 
@@ -95,21 +93,11 @@ impl Joinable<Page, Module, String> for Page {
     ) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
         use crate::schema::modules::dsl::modules;
         use crate::schema::pages::dsl::pages;
-        use crate::schema::pages::dsl::url_path;
+        use crate::schema::pages::dsl::page_url;
 
         pages
             .inner_join(modules)
-            .filter(url_path.eq(id))
+            .filter(page_url.eq(id))
             .load::<(Page, Module)>(db)
-    }
-}
-
-impl ModuleHash {
-    pub fn new() -> ModuleHash {
-        ModuleHash { v: HashMap::new() }
-    }
-
-    pub fn get_field(&self, s: &str) -> String {
-        self.v.get(s).unwrap().content.clone()
     }
 }

@@ -11,15 +11,16 @@ table! {
         module_id -> Integer,
         module_type_id -> Integer,
         title -> Varchar,
-        page_url -> Varchar,
+        page_name -> Varchar,
         content -> Text,
     }
 }
 
 table! {
-    pages (url_path) {
-        url_path -> Varchar,
-        title -> Varchar,
+    pages (page_name) {
+        page_name -> Varchar,
+        page_url -> Varchar,
+        page_title -> Varchar,
         time_created -> Timestamp,
     }
 }
@@ -32,7 +33,7 @@ table! {
 }
 
 joinable!(modules -> module_types (module_type_id));
-joinable!(modules -> pages (page_url));
+joinable!(modules -> pages (page_name));
 
 allow_tables_to_appear_in_same_query!(
     module_types,
