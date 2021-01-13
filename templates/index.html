@@ -10,9 +10,7 @@
 <body>
     <h1>{{ title }}</h1>
     <h1>{{ url_path }}</h1>
-    {% for module in modules %}
-        <p>{{ module.content }}</p>
-    {% endfor %}
+    <h1>{{ fields.get_field("test") }}</h1>
 </body>
 
 </html>

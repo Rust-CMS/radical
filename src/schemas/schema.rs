@@ -10,6 +10,7 @@ table! {
     modules (module_id) {
         module_id -> Integer,
         module_type_id -> Integer,
+        title -> Varchar,
         page_url -> Varchar,
         content -> Text,
     }

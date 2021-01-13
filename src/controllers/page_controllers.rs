@@ -1,12 +1,7 @@
-use actix_files::NamedFile;
 use actix_web::{web, HttpRequest, HttpResponse};
 use module_models::Module;
 
-use crate::{
-    models::{pool_handler, Joinable, Model, MySQLPool},
-    module_models,
-    page_models::PageModuleRelation,
-};
+use crate::{models::{pool_handler, Joinable, Model, MySQLPool}, module_models, page_models::{ModuleHash, PageModuleRelation}};
 
 use askama::Template;
 
@@ -17,7 +12,9 @@ use crate::errors_middleware::CustomHttpError;
 
 use crate::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, CustomHttpError> {
+fn parse_page(
+    page_vec: Vec<(Page, Module)>,
+) -> Result<PageModuleRelation, CustomHttpError> {
     let origin_page = &page_vec.get(0).ok_or(CustomHttpError::NotFound)?.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
@@ -25,13 +22,13 @@ fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, Custo
         url_path: origin_page.url_path.to_string(),
         title: origin_page.title.to_string(),
         time_created: origin_page.time_created,
-        modules: Vec::new(),
+        fields: ModuleHash::new()
     };
 
     // Parsing of the tuples starts here.
     for tuple in page_vec {
         let module = tuple.1;
-        res.modules.push(module);
+        res.fields.v.insert(String::from("test"), module);
     }
 
     Ok(res)
@@ -45,11 +42,11 @@ pub async fn display_page(
     let path = req.path();
     // Select the page
     let page_vec = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
-    
+
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
 
-    let s = pagemodule.render().unwrap();
+    let s: String = pagemodule.render().unwrap();
 
     Ok(HttpResponse::Ok().content_type("text/html").body(&s))
 }

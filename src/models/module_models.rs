@@ -1,14 +1,17 @@
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
+use askama::{Template};
 use super::models::{Model};
 
 use crate::schema::modules;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash, Template)]
+#[template(path = "module.html")]
 pub struct Module {
     pub module_id: i32,
     pub module_type_id: i32,
+    pub title: String,
     pub page_url: String,
     pub content: String,
 }
@@ -18,6 +21,7 @@ pub struct Module {
 pub struct MutModule {
     pub module_id: Option<i32>,
     pub module_type_id: i32,
+    pub title: String,
     pub page_url: String,
     pub content: Option<String>,
 }
