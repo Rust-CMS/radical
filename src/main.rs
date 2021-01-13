@@ -37,6 +37,7 @@ mod schema;
 mod tests;
 
 use config_routers::{DatabaseConfigRouter, LocalConfigRouter};
+use handlebars::Handlebars;
 use module_routers::ModuleRouter;
 use page_routers::PageRouter;
 
@@ -49,6 +50,11 @@ extern crate diesel;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let pool = models::establish_database_connection().unwrap();
+
+    let mut handlebars = Handlebars::new();
+
+    handlebars.register_templates_directory(".html", "./templates").unwrap();
+    let handlebars_ref = web::Data::new(handlebars);
 
     HttpServer::new(move || {
         App::new()
@@ -70,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
             .default_service(web::get().to(page_controllers::display_page))
             .data(pool.clone())
+            .app_data(handlebars_ref.clone())
     })
     .bind("127.0.0.1:9090")?
     .workers(15)
