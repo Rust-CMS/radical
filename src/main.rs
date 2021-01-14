@@ -1,6 +1,7 @@
 #![feature(int_error_matching)]
 
-use actix_web::{middleware, web, App, HttpServer};
+use actix_cors::Cors;
+use actix_web::{web, App, HttpServer};
 
 use actix_files as fs;
 
@@ -57,15 +58,10 @@ async fn main() -> std::io::Result<()> {
     let handlebars_ref = web::Data::new(handlebars);
 
     HttpServer::new(move || {
+        let cors = Cors::default().allow_any_origin().allow_any_header().allow_any_method();
+
         App::new()
-            .wrap(
-                middleware::DefaultHeaders::new()
-                    .header("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS")
-                    .header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-                    .header("X-Version", "0.1")
-                    .header("Content-Type", "application/json")
-                    .header("Access-Control-Allow-Origin", "*"),
-            )
+            .wrap(cors)
             .service(
                 web::scope("/v1")
                     .service(PageRouter::new())
