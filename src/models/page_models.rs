@@ -30,7 +30,7 @@ pub struct MutPage {
     pub page_title: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleRelation {
     pub page_name: String,
     pub url_path: String,
@@ -93,11 +93,11 @@ impl Joinable<Page, Module, String> for Page {
     ) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
         use crate::schema::modules::dsl::modules;
         use crate::schema::pages::dsl::pages;
-        use crate::schema::pages::dsl::page_url;
+        use crate::schema::pages::dsl::page_name;
 
         pages
             .inner_join(modules)
-            .filter(page_url.eq(id))
+            .filter(page_name.eq(id))
             .load::<(Page, Module)>(db)
     }
 }
