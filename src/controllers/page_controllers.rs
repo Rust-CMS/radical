@@ -45,10 +45,7 @@ pub async fn display_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    // remove 0, since it wil always be blank.
-
     let page_vec = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
-
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
 
@@ -110,7 +107,9 @@ pub async fn get_page_join_modules(
     let page_vec =
         Page::read_one_join_on(page_id.to_string(), &mysql_pool).map_err(map_sql_error)?;
 
-    HttpResponseBuilder::new(200, &page_vec)
+    let pagemodules = parse_page(page_vec).or(Err(CustomHttpError::NotFound))?;
+
+    HttpResponseBuilder::new(200, &pagemodules)
 }
 
 /// Updates a page by passing it a page-like JSON object and page ID.
