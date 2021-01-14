@@ -23,8 +23,8 @@ fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, Custo
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
     let mut res = PageModuleRelation {
         page_name: origin_page.page_name.to_string(),
-        url_path: origin_page.page_url.to_string(),
-        title: origin_page.title.to_string(),
+        page_url: origin_page.page_url.to_string(),
+        page_title: origin_page.page_title.to_string(),
         time_created: origin_page.time_created,
         fields: HashMap::new(),
     };

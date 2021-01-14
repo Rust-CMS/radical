@@ -17,7 +17,7 @@ pub struct Page {
     pub page_name: String,
     /// This should be the path which the program matches on.
     pub page_url: String,
-    pub title: String,
+    pub page_title: String,
     pub time_created: NaiveDateTime,
 }
 /// This acts as both the insertable and update object.
@@ -33,8 +33,8 @@ pub struct MutPage {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleRelation {
     pub page_name: String,
-    pub url_path: String,
-    pub title: String,
+    pub page_url: String,
+    pub page_title: String,
     pub time_created: NaiveDateTime,
     /// the key of the hashmap is the `title` of the module, and the rest is the module.
     pub fields: HashMap<String, Module>,
