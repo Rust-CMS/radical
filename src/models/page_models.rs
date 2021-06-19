@@ -1,23 +1,23 @@
+use std::collections::HashMap;
+
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-#[path = "../schemas/schema.rs"]
-mod schema;
-
 use crate::{models::Joinable, module_models::Module};
 
-use super::{
-    models::{establish_database_connection, Model},
-};
-use schema::pages;
+use super::models::Model;
+use crate::schema::pages;
 
 /// The main Rust implementation for the Page model.
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
-    pub page_id: i32,
-    pub title: String,
+    /// This should match the name of the HTML file.
+    pub page_name: String,
+    /// This should be the path which the program matches on.
+    pub page_url: String,
+    pub page_title: String,
     pub time_created: NaiveDateTime,
 }
 /// This acts as both the insertable and update object.
@@ -25,16 +25,19 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
-    pub page_id: Option<i32>,
-    pub title: String,
+    pub page_name: String,
+    pub page_url: String,
+    pub page_title: String,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleRelation {
-    pub page_id: i32,
-    pub title: String,
+    pub page_name: String,
+    pub page_url: String,
+    pub page_title: String,
     pub time_created: NaiveDateTime,
-    pub modules: Vec<Module>
+    /// the key of the hashmap is the `title` of the module, and the rest is the module.
+    pub fields: HashMap<String, Module>,
 }
 
 /// Implementation for Page restricted by models.rs trait.
@@ -43,56 +46,58 @@ pub struct PageModuleRelation {
 /// Every one of these functions exports only what they need out of `dsl`.
 /// Taking all of the columns (for instance whenever using schema::pages::dsl::*)
 /// is unnecessary and leads to higher RAM usage.
-impl Model<Page, MutPage> for Page {
-    fn create(new_page: &MutPage) -> Result<usize, diesel::result::Error> {
-        let db = establish_database_connection();
-
+impl Model<Page, MutPage, String> for Page {
+    fn create(new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         Ok(diesel::insert_or_ignore_into(pages::table)
             .values(new_page)
-            .execute(&db)?)
+            .execute(db)?)
     }
 
-    fn read_one(id: i32) -> Result<Self, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
-        let db = establish_database_connection();
+    fn read_one(id: String, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
+        use crate::schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_name;
 
-        pages.filter(page_id.eq(id)).first::<Self>(&db)
+        pages.filter(page_name.eq(id)).first::<Self>(db)
     }
 
-    fn read_all() -> Result<Vec<Self>, diesel::result::Error> {
-        let db = establish_database_connection();
-
-        pages::table.load::<Self>(&db)
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
+        pages::table.load::<Self>(db)
     }
 
-    fn update(id: i32, new_page: &MutPage) -> Result<usize, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
-        let db = establish_database_connection();
+    fn update(
+        id: String,
+        new_page: &MutPage,
+        db: &MysqlConnection,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_name;
 
-        Ok(diesel::update(pages.filter(page_id.eq(id)))
+        Ok(diesel::update(pages.filter(page_name.eq(id)))
             .set(new_page)
-            .execute(&db)?)
+            .execute(db)?)
     }
 
-    fn delete(id: i32) -> Result<usize, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
-        let db = establish_database_connection();
+    fn delete(id: String, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use crate::schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_name;
 
-        Ok(diesel::delete(pages.filter(page_id.eq(id))).execute(&db)?)
+        Ok(diesel::delete(pages.filter(page_name.eq(id))).execute(db)?)
     }
 }
 
 /// Separate implementation for joinable trait.
-impl Joinable<Page, Module> for Page {
-    fn read_one_join_on(id: i32) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
-        use schema::pages::dsl::page_id;
-        use schema::pages::dsl::pages;
-        use schema::modules::dsl::modules;
-        let db = establish_database_connection();
+impl Joinable<Page, Module, String> for Page {
+    fn read_one_join_on(
+        id: String,
+        db: &MysqlConnection,
+    ) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
+        use crate::schema::modules::dsl::modules;
+        use crate::schema::pages::dsl::pages;
+        use crate::schema::pages::dsl::page_name;
 
-        pages.inner_join(modules).filter(page_id.eq(id)).load::<(Page, Module)>(&db)
+        pages
+            .inner_join(modules)
+            .filter(page_name.eq(id))
+            .load::<(Page, Module)>(db)
     }
 }

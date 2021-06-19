@@ -1,20 +1,17 @@
+use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
+use super::models::{Model};
 
-#[path = "../schemas/schema.rs"]
-mod schema;
+use crate::schema::modules;
 
-use super::models::{Model, establish_database_connection};
-
-use schema::modules;
-
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]
 pub struct Module {
-    module_id: i32,
-    module_type_id: i32,
-    page_id: i32,
-    content: Option<String>
+    pub module_id: i32,
+    pub module_type_id: i32,
+    pub title: String,
+    pub page_name: String,
+    pub content: String,
 }
 
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
@@ -22,43 +19,50 @@ pub struct Module {
 pub struct MutModule {
     pub module_id: Option<i32>,
     pub module_type_id: i32,
-    pub page_id: i32,
-    pub content: Option<String>
+    pub title: String,
+    pub page_name: String,
+    pub content: Option<String>,
 }
 
-impl Model<Module, MutModule> for Module {
-    fn create(new_module: &MutModule) -> Result<usize, diesel::result::Error> {
-        let db = establish_database_connection();
-
-        Ok(diesel::insert_or_ignore_into(modules::table).values(new_module).execute(&db)?)
+impl Model<Module, MutModule, i32> for Module {
+    fn create(
+        new_module: &MutModule,
+        db: &MysqlConnection,
+    ) -> Result<usize, diesel::result::Error> {
+        Ok(diesel::insert_or_ignore_into(modules::table)
+            .values(new_module)
+            .execute(db)?)
     }
 
-    fn read_one(mod_id: i32) -> Result<Self, diesel::result::Error> {
+    fn read_one(mod_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
         use modules::dsl::module_id;
-        let db = establish_database_connection();
 
-        Ok(modules::table.filter(module_id.eq(mod_id)).first::<Self>(&db)?)
+        Ok(modules::table
+            .filter(module_id.eq(mod_id))
+            .first::<Self>(db)?)
     }
 
-    fn read_all() -> Result<Vec<Self>, diesel::result::Error> {
-        let db = establish_database_connection();
-
-        Ok(modules::table.load::<Module>(&db)?)
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
+        Ok(modules::table.load::<Module>(db)?)
     }
 
-    fn delete(mod_id: i32) -> Result<usize, diesel::result::Error> {
-        use schema::modules::dsl::module_id;
-        use schema::modules::dsl::modules;
-        let db = establish_database_connection();
+    fn delete(mod_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use crate::schema::modules::dsl::module_id;
+        use crate::schema::modules::dsl::modules;
 
-        Ok(diesel::delete(modules.filter(module_id.eq(mod_id))).execute(&db)?)
+        Ok(diesel::delete(modules.filter(module_id.eq(mod_id))).execute(db)?)
     }
 
-    fn update(mod_id: i32, new_module: &MutModule) -> Result<usize, diesel::result::Error> {
-        use schema::modules::dsl::module_id;
-        use schema::modules::dsl::modules;
-        let db = establish_database_connection();
+    fn update(
+        mod_id: i32,
+        new_module: &MutModule,
+        db: &MysqlConnection,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::modules::dsl::module_id;
+        use crate::schema::modules::dsl::modules;
 
-        Ok(diesel::update(modules.filter(module_id.eq(mod_id))).set(new_module).execute(&db)?)
+        Ok(diesel::update(modules.filter(module_id.eq(mod_id)))
+            .set(new_module)
+            .execute(db)?)
     }
 }

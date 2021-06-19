@@ -10,24 +10,34 @@ table! {
     modules (module_id) {
         module_id -> Integer,
         module_type_id -> Integer,
-        page_id -> Integer,
-        content -> Nullable<Text>,
+        title -> Varchar,
+        page_name -> Varchar,
+        content -> Text,
     }
 }
 
 table! {
-    pages (page_id) {
-        page_id -> Integer,
-        title -> Varchar,
+    pages (page_name) {
+        page_name -> Varchar,
+        page_url -> Varchar,
+        page_title -> Varchar,
         time_created -> Timestamp,
     }
 }
 
+table! {
+    web_config (config_key) {
+        config_key -> Varchar,
+        config_val -> Varchar,
+    }
+}
+
 joinable!(modules -> module_types (module_type_id));
-joinable!(modules -> pages (page_id));
+joinable!(modules -> pages (page_name));
 
 allow_tables_to_appear_in_same_query!(
     module_types,
     modules,
     pages,
+    web_config,
 );

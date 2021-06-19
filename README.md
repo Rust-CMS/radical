@@ -11,7 +11,7 @@ Version: Pre-alpha
 |             | Ready |
 | ----------- | ----------- |
 | Backend | ✅ |
-| Frontend | ❌ |
+| Frontend | - |
 | Production | ❌ |
 
 Currently this project has no frontend and is just a backend API.

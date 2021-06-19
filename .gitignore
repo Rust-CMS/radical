@@ -4,3 +4,5 @@
 # vscode stuff
 workspace.code-workspace
 .vscode
+
+/public
