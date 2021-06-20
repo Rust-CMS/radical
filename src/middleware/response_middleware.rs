@@ -1,7 +1,7 @@
 use actix_web::HttpResponse;
 use serde::{Serialize};
 
-use crate::errors_middleware::{CustomHttpError};
+use crate::middleware::errors_middleware::{CustomHttpError};
 
 /// A generic HTTP responder. Different than actix-web's one.
 /// This works better as it allows for a consistent JSON response layout across the entire API.

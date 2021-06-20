@@ -1,6 +1,6 @@
 use actix_web::{web, Scope};
 
-use crate::config_controllers::*;
+use crate::controllers::config_controllers::*;
 pub struct LocalConfigRouter;
 
 impl LocalConfigRouter {

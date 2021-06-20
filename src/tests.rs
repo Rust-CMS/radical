@@ -1,13 +1,16 @@
-use super::*;
+use super::controllers::*;
 use actix_web::{http::StatusCode, test};
-use module_models::MutModule;
-use page_models::MutPage;
+
+
+use super::models::module_models::MutModule;
+use super::models::page_models::MutPage;
 
 // Creates a page used for unit tests.
 async fn create_test_page() {
     let new_page = MutPage {
-        page_id: Some(-1),
-        title: String::from("Hello world!"),
+        page_name: String::from("Hello world!"),
+        page_url: "/",
+        page_title: String::from("Hello world!"),
     };
     page_controllers::create_page(serde_json::to_string(&new_page).unwrap())
         .await
@@ -19,8 +22,9 @@ async fn create_test_module() {
     let new_module = MutModule {
         module_id: Some(-1),
         module_type_id: 1,
-        page_id: -1,
         content: Some(String::from("Hello world!")),
+        title: "test",
+        page_name: "test",
     };
     module_controllers::create_module(serde_json::to_string(&new_module).unwrap())
         .await

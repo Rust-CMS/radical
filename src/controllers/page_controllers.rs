@@ -2,20 +2,15 @@ use std::collections::HashMap;
 
 use actix_web::{web, HttpRequest, HttpResponse};
 use handlebars::Handlebars;
-use module_models::Module;
 
-use crate::{
-    models::{pool_handler, Joinable, Model, MySQLPool},
-    module_models,
-    page_models::PageModuleRelation,
-};
+use crate::models::{Joinable, Model, MySQLPool, pool_handler};
 
-use crate::page_models::{MutPage, Page};
+use crate::models::module_models::Module;
+use crate::models::page_models::PageModuleRelation;
+use crate::models::page_models::{MutPage, Page};
 
-use crate::errors_middleware::map_sql_error;
-use crate::errors_middleware::CustomHttpError;
-
-use crate::response_middleware::HttpResponseBuilder;
+use crate::middleware::errors_middleware::{map_sql_error, CustomHttpError};
+use crate::middleware::response_middleware::HttpResponseBuilder;
 
 fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, CustomHttpError> {
     let origin_page = &page_vec.get(0).ok_or(CustomHttpError::NotFound)?.0;

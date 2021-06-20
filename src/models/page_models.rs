@@ -5,9 +5,10 @@ use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-use crate::{models::Joinable, module_models::Module};
+use super::Joinable;
 
-use super::models::Model;
+use super::Model;
+use super::module_models::Module;
 use crate::schema::pages;
 
 /// The main Rust implementation for the Page model.

@@ -1,8 +1,8 @@
 use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
-use super::models::{Model};
 
+use super::Model;
 use crate::schema::modules;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]

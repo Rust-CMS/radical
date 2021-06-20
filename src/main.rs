@@ -2,45 +2,22 @@
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
+use handlebars::Handlebars;
 
 use actix_files as fs;
 
-#[path = "./controllers/config_controllers.rs"]
-mod config_controllers;
-#[path = "./models/config_models.rs"]
-mod config_models;
-#[path = "./routers/config_routers.rs"]
-mod config_routers;
-/// All top level module declarations should go in main.rs.
-/// This allows you to then `use crate::module_controllers` in other files.
-#[path = "./middleware/errors_middleware.rs"]
-mod errors_middleware;
-#[path = "./models/models.rs"]
+pub mod schema;
+mod routers;
 mod models;
-#[path = "./controllers/module_controllers.rs"]
-mod module_controllers;
-#[path = "./models/module_models.rs"]
-mod module_models;
-#[path = "./routers/module_routers.rs"]
-mod module_routers;
-#[path = "./controllers/page_controllers.rs"]
-mod page_controllers;
-#[path = "./models/page_models.rs"]
-mod page_models;
-#[path = "./routers/page_routers.rs"]
-mod page_routers;
-#[path = "./middleware/response_middleware.rs"]
-mod response_middleware;
-#[path = "./schemas/schema.rs"]
-mod schema;
+mod controllers;
+mod middleware;
 
 #[cfg(test)]
 mod tests;
 
-use config_routers::{DatabaseConfigRouter, LocalConfigRouter};
-use handlebars::Handlebars;
-use module_routers::ModuleRouter;
-use page_routers::PageRouter;
+use routers::config_routers::{DatabaseConfigRouter, LocalConfigRouter};
+use routers::page_routers::PageRouter;
+use routers::module_routers::ModuleRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -70,7 +47,7 @@ async fn main() -> std::io::Result<()> {
                     .service(DatabaseConfigRouter::new()),
             )
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
-            .default_service(web::get().to(page_controllers::display_page))
+            .default_service(web::get().to(controllers::page_controllers::display_page))
             .data(pool.clone())
             .app_data(handlebars_ref.clone())
     })

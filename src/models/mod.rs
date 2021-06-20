@@ -1,11 +1,16 @@
-use actix_web::web;
-use diesel::{
-    r2d2::{ConnectionManager, Pool, PoolError, PooledConnection},
-    MysqlConnection,
-};
+pub mod config_models;
+pub mod module_models;
+pub mod page_models;
+
 use std::{fs::File, io::BufReader};
 
-use crate::{config_controllers::LocalConfig, errors_middleware::CustomHttpError};
+use actix_web::web;
+use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
+
+use crate::{controllers::config_controllers::LocalConfig, middleware::errors_middleware::CustomHttpError};
+
+pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
+pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;
 
 /// CRUD implementation.
 pub trait Model<TQueryable, TMutable, TPrimary> {
@@ -30,9 +35,6 @@ pub trait Joinable<TLeft, TRight, TPrimary> {
         db: &MysqlConnection,
     ) -> Result<Vec<(TLeft, TRight)>, diesel::result::Error>;
 }
-
-pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
-pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;
 
 pub fn establish_database_connection() -> Option<MySQLPool> {
     let config_file = File::open("./rcms.json").expect("Failed to open config file.");

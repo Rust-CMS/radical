@@ -1,6 +1,6 @@
 use actix_web::{web, Scope};
 
-use crate::page_controllers::*;
+use crate::controllers::page_controllers::*;
 
 pub struct PageRouter;
 

@@ -1,5 +1,5 @@
+use crate::models::config_models::{Config, MutConfig};
 use actix_web::{web, HttpRequest, HttpResponse};
-use config_models::{Config, MutConfig};
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -7,14 +7,12 @@ use std::{
     io::BufReader,
 };
 
-use models::Model;
+use crate::models::Model;
 
-use crate::{
-    config_models,
-    errors_middleware::{map_sql_error, CustomHttpError},
-    models::{self, pool_handler, MySQLPool},
-    response_middleware::HttpResponseBuilder,
-};
+use crate::middleware::errors_middleware::{map_sql_error, CustomHttpError};
+use crate::middleware::response_middleware::HttpResponseBuilder;
+
+use crate::models::{pool_handler, MySQLPool};
 
 /// This will be exported into by serde. See the `rcms.json` file in the root of the project for config information.
 #[derive(Deserialize, Serialize)]

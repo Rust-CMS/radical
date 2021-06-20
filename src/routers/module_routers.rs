@@ -1,6 +1,6 @@
 use actix_web::{web, Scope};
 
-use crate::module_controllers::*;
+use crate::controllers::module_controllers::*;
 
 pub struct ModuleRouter;
 

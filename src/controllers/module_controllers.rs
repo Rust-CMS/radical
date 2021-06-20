@@ -1,14 +1,13 @@
 use actix_web::{web, HttpRequest, HttpResponse};
 
 use crate::models::{Model, MySQLPool, pool_handler};
+use crate::models::module_models::{Module, MutModule};
 
-use crate::module_models::{Module, MutModule};
+use crate::middleware::errors_middleware::map_int_parsing_error;
+use crate::middleware::errors_middleware::map_sql_error;
+use crate::middleware::errors_middleware::CustomHttpError;
 
-use crate::errors_middleware::map_int_parsing_error;
-use crate::errors_middleware::map_sql_error;
-use crate::errors_middleware::CustomHttpError;
-
-use crate::response_middleware::HttpResponseBuilder;
+use crate::middleware::response_middleware::HttpResponseBuilder;
 
 /// Creates a module by passing a module-like JSON object.
 pub async fn create_module(
