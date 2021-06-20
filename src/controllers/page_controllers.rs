@@ -46,6 +46,7 @@ pub async fn display_page(
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
 
+    // TODO this should only happen on request of template reload. maybe add a path to config?
     hb.lock().unwrap().clear_templates();
     hb.lock().unwrap().register_templates_directory(".html", "./templates").unwrap();
     

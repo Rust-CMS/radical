@@ -6,3 +6,5 @@ workspace.code-workspace
 .vscode
 
 /public
+
+rcms.json
