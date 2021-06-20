@@ -1,9 +1,12 @@
 CREATE TABLE pages (
-    page_name varchar(500) NOT NULL PRIMARY KEY,
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    page_name varchar(500) NOT NULL,
     page_url varchar(100) NOT NULL,
     page_title varchar(500) NOT NULL,
     time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+INSERT INTO pages (page_name, page_url, page_title) VALUES ("index.html", "/", "Hello world.");
 
 CREATE TABLE module_types (
     module_type_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -20,12 +23,14 @@ CREATE TABLE modules (
     module_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
     module_type_id int NOT NULL,
     title varchar(100) NOT NULL,
-    page_name varchar(500) NOT NULL,
+    page_id int NOT NULL,
     content TEXT NOT NULL,
-    FOREIGN KEY (page_name) REFERENCES pages(page_name) ON DELETE CASCADE,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
     FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE,
     UNIQUE (title)
 );
+
+INSERT INTO modules (module_type_id, title, page_id, content) VALUES (1, "Hello world!", 1, "Hello world!");
 
 CREATE TABLE web_config (
     config_key VARCHAR(100) PRIMARY KEY NOT NULL,

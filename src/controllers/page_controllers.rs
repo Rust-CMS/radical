@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use actix_web::{web, HttpRequest, HttpResponse};
 use handlebars::Handlebars;
 
-use crate::models::{Joinable, Model, MySQLPool, pool_handler};
+use crate::models::{pool_handler, Joinable, Model, MySQLPool};
 
 use crate::models::module_models::Module;
 use crate::models::page_models::PageModuleRelation;
@@ -22,6 +22,7 @@ fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, Custo
         page_title: origin_page.page_title.to_string(),
         time_created: origin_page.time_created,
         fields: HashMap::new(),
+        page_id: origin_page.id,
     };
 
     // Parsing of the tuples starts here.
@@ -72,16 +73,12 @@ pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, Custo
 
 /// Gets one page by ID.
 pub async fn get_page(
-    req: HttpRequest,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let page_id: &str = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?;
 
-    let page: Page = Page::read_one(page_id.to_string(), &mysql_pool).map_err(map_sql_error)?;
+    let page: Page = Page::read_one(*id, &mysql_pool).map_err(map_sql_error)?;
 
     HttpResponseBuilder::new(200, &page)
 }
@@ -109,34 +106,25 @@ pub async fn get_page_join_modules(
 
 /// Updates a page by passing it a page-like JSON object and page ID.
 pub async fn update_page(
-    req_body: String,
-    req: HttpRequest,
+    u_page: web::Json<MutPage>,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let u_page: MutPage = serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
-    let page_id: &str = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?;
 
-    Page::update(page_id.to_string(), &u_page, &mysql_pool).map_err(map_sql_error)?;
+    Page::update(*id, &u_page, &mysql_pool).map_err(map_sql_error)?;
 
-    HttpResponseBuilder::new(200, &u_page)
+    HttpResponseBuilder::new(200, &*u_page)
 }
 
 /// Deletes a page by passing an id.
 pub async fn delete_page(
-    req: HttpRequest,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let page_id: &str = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?;
 
-    Page::delete(page_id.to_string(), &mysql_pool).map_err(map_sql_error)?;
+    Page::delete(*id, &mysql_pool).map_err(map_sql_error)?;
 
-    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", page_id))
+    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
 }

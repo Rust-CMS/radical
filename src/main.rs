@@ -6,7 +6,7 @@ use handlebars::Handlebars;
 
 use actix_files as fs;
 
-pub mod schema;
+mod schema;
 mod routers;
 mod models;
 mod controllers;
