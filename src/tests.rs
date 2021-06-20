@@ -1,7 +1,6 @@
 use super::controllers::*;
 use actix_web::{http::StatusCode, test};
 
-
 use super::models::module_models::MutModule;
 use super::models::page_models::MutPage;
 
@@ -9,7 +8,7 @@ use super::models::page_models::MutPage;
 async fn create_test_page() {
     let new_page = MutPage {
         page_name: String::from("Hello world!"),
-        page_url: "/",
+        page_url: String::from("/"),
         page_title: String::from("Hello world!"),
     };
     page_controllers::create_page(serde_json::to_string(&new_page).unwrap())
@@ -23,9 +22,10 @@ async fn create_test_module() {
         module_id: Some(-1),
         module_type_id: 1,
         content: Some(String::from("Hello world!")),
-        title: "test",
-        page_name: "test",
+        title: String::from("test"),
+        page_name: String::from("test"),
     };
+
     module_controllers::create_module(serde_json::to_string(&new_module).unwrap())
         .await
         .unwrap();
@@ -35,6 +35,7 @@ async fn create_test_module() {
 /// This function does nto have to be efficient, as it is only for tests.
 async fn cleanup_test_values() {
     let cleanup_req = test::TestRequest::get().param("id", "-1").to_http_request();
+
     page_controllers::delete_page(cleanup_req.clone())
         .await
         .unwrap();
@@ -45,14 +46,7 @@ async fn cleanup_test_values() {
 
 #[actix_rt::test]
 async fn create_page() {
-    let new_page = MutPage {
-        page_id: Some(-1),
-        title: String::from("Hello world!"),
-    };
-
-    let resp = page_controllers::create_page(serde_json::to_string(&new_page).unwrap())
-        .await
-        .unwrap();
+    create_test_page().await;
 
     cleanup_test_values().await;
 
@@ -61,9 +55,7 @@ async fn create_page() {
 
 #[actix_rt::test]
 async fn read_all_pages() {
-    println!("before");
     create_test_page().await;
-    println!("after");
 
     let resp = page_controllers::get_pages().await.unwrap();
 
@@ -102,8 +94,9 @@ async fn update_page() {
     create_test_page().await;
 
     let new_page = MutPage {
-        page_id: None,
-        title: String::from("Hello world! updated"),
+        page_name: String::from("Hello world!"),
+        page_url: String::from("/"),
+        page_title: String::from("Hello world!"),
     };
 
     let req = test::TestRequest::get().param("id", "-1").to_http_request();
@@ -123,8 +116,9 @@ async fn create_modules() {
     let new_module = MutModule {
         module_id: Some(-1),
         module_type_id: 1,
-        page_id: -1,
         content: Some(String::from("Hello world!")),
+        title: String::from("title"),
+        page_name: String::from("name"),
     };
     let resp = module_controllers::create_module(serde_json::to_string(&new_module).unwrap())
         .await
@@ -166,10 +160,11 @@ async fn update_modules() {
     create_test_module().await;
 
     let new_module = MutModule {
-        module_id: None,
+        module_id: Some(-1),
         module_type_id: 1,
-        page_id: -1,
-        content: Some(String::from("Hello world! updated")),
+        content: Some(String::from("Hello world!")),
+        title: String::from("title"),
+        page_name: String::from("name"),
     };
 
     let req = test::TestRequest::get().param("id", "-1").to_http_request();
