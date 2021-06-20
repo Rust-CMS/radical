@@ -1,5 +1,7 @@
 #![feature(int_error_matching)]
 
+use std::sync::Mutex;
+
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use handlebars::Handlebars;
@@ -32,7 +34,7 @@ async fn main() -> std::io::Result<()> {
     let mut handlebars = Handlebars::new();
 
     handlebars.register_templates_directory(".html", "./templates").unwrap();
-    let handlebars_ref = web::Data::new(handlebars);
+    let handlebars_ref = web::Data::new(Mutex::new(handlebars));
 
     HttpServer::new(move || {
         let cors = Cors::default().allow_any_origin().allow_any_header().allow_any_method();

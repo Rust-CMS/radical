@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 use actix_web::{web, HttpRequest, HttpResponse};
 use handlebars::Handlebars;
@@ -37,7 +38,7 @@ fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, Custo
 pub async fn display_page(
     req: web::HttpRequest,
     pool: web::Data<MySQLPool>,
-    hb: web::Data<Handlebars<'_>>,
+    hb: web::Data<Mutex<Handlebars<'_>>>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
@@ -45,7 +46,10 @@ pub async fn display_page(
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
 
-    let s = hb.render(&pagemodule.page_name, &pagemodule).unwrap();
+    hb.lock().unwrap().clear_templates();
+    hb.lock().unwrap().register_templates_directory(".html", "./templates").unwrap();
+    
+    let s = hb.lock().unwrap().render(&pagemodule.page_name, &pagemodule).unwrap();
 
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
