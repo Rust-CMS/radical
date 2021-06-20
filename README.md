@@ -68,17 +68,18 @@ Next, run the migrations.
 `diesel migration run`
 
 ## Environment Variables
-This project utilizes DotEnv.
+Most all environment setup will be handled by an installer GUI in the future. For now, we put all "environment" variables into `rcms.json`.
 
-### Variables
+## rcms.json examples
 
-DATABASE_URL (MySQL Connection string)
-
-### DotEnv Examples
-
-```
-// .env
-DATABASE_URL=mysql://rustcms:rustcms@localhost:3306/rustcms
+```json
+{
+    "mysql_username": String,
+    "mysql_password": String,
+    "mysql_url": String,
+    "mysql_port": Number,
+    "mysql_database": String
+}
 ```
 
 ## Repositories Like This
