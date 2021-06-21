@@ -1,6 +1,6 @@
 #![feature(int_error_matching)]
 
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
@@ -8,18 +8,19 @@ use handlebars::Handlebars;
 
 use actix_files as fs;
 
-mod schema;
-mod routers;
-mod models;
 mod controllers;
 mod middleware;
+mod models;
+mod routers;
+mod schema;
+mod watch;
 
 #[cfg(test)]
 mod tests;
 
 use routers::config_routers::{DatabaseConfigRouter, LocalConfigRouter};
-use routers::page_routers::PageRouter;
 use routers::module_routers::ModuleRouter;
+use routers::page_routers::PageRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -31,13 +32,19 @@ extern crate diesel;
 async fn main() -> std::io::Result<()> {
     let pool = models::establish_database_connection().unwrap();
 
-    let mut handlebars = Handlebars::new();
-
-    handlebars.register_templates_directory(".html", "./templates").unwrap();
+    let handlebars = Handlebars::new();
+    
+    // web::Data is Arc, so we can safely clone it and send it between our watcher and the server.
     let handlebars_ref = web::Data::new(Mutex::new(handlebars));
+    let hb = handlebars_ref.clone();
+
+    std::thread::spawn(|| watch::watch(hb));
 
     HttpServer::new(move || {
-        let cors = Cors::default().allow_any_origin().allow_any_header().allow_any_method();
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_header()
+            .allow_any_method();
 
         App::new()
             .wrap(cors)
@@ -54,7 +61,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(handlebars_ref.clone())
     })
     .bind("127.0.0.1:9090")?
-    .workers(15)
+    .workers(2)
     .run()
     .await
 }
