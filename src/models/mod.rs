@@ -55,7 +55,7 @@ pub fn establish_database_connection() -> Option<MySQLPool> {
 // https://dev.to/werner/practical-rust-web-development-connection-pool-46f4
 pub fn init_pool(db_url: &str) -> Result<MySQLPool, PoolError> {
     let manager = ConnectionManager::<MysqlConnection>::new(db_url);
-    Pool::builder().max_size(10).build(manager)
+    Pool::builder().max_size(2).build(manager)
 }
 
 pub fn pool_handler(pool: web::Data<MySQLPool>) -> Result<MySQLPooledConnection, CustomHttpError> {
