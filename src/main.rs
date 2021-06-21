@@ -1,6 +1,6 @@
 #![feature(int_error_matching)]
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Mutex};
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
