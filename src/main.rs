@@ -14,6 +14,7 @@ mod models;
 mod routers;
 mod schema;
 mod watch;
+mod helpers;
 
 #[cfg(test)]
 mod tests;
@@ -37,6 +38,8 @@ async fn main() -> std::io::Result<()> {
     // web::Data is Arc, so we can safely clone it and send it between our watcher and the server.
     let handlebars_ref = web::Data::new(Mutex::new(handlebars));
     let hb = handlebars_ref.clone();
+    
+    helpers::default::register_helpers(hb.clone());
 
     std::thread::spawn(|| watch::watch(hb));
 
