@@ -6,7 +6,7 @@ CREATE TABLE pages (
     time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-INSERT INTO pages (page_name, page_url, page_title) VALUES ("index.html", "/", "Hello world.");
+INSERT INTO pages (page_name, page_url, page_title) VALUES ("index", "/", "Hello world.");
 
 CREATE TABLE module_types (
     module_type_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -26,8 +26,7 @@ CREATE TABLE modules (
     page_id int NOT NULL,
     content TEXT NOT NULL,
     FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
-    FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE,
-    UNIQUE (title)
+    FOREIGN KEY (module_type_id) REFERENCES module_types(module_type_id) ON DELETE CASCADE
 );
 
 INSERT INTO modules (module_type_id, title, page_id, content) VALUES (1, "Hello world!", 1, "Hello world!");
