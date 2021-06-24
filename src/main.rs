@@ -1,4 +1,5 @@
 #![feature(int_error_matching)]
+#![feature(try_blocks)]
 
 use std::sync::{Mutex};
 

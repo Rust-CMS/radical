@@ -16,16 +16,25 @@ fn get(
             "No module title provided to helper function.",
         ))?
         .render();
-    out.write(
-        &ctx.data()
+
+    // helper that allows a custom error message to show if the value does not exist in the database yet.
+    // errors are passed up through `ok_or` returning a RenderError, then passed to the `try` block.
+    let field_result: Result<String, RenderError> = try {
+        ctx
+            .data()
             .get("fields")
-            .unwrap()
+            .ok_or(RenderError::new("No fields exist on this page."))?
             .get(module_title.clone())
-            .unwrap()
+            .ok_or(RenderError::new(&format!(
+                "Field `{}` does not exist on the page.",
+                module_title
+            )))?
             .get("content")
             .unwrap()
-            .render(),
-    )?;
+            .render()
+    };
+
+    out.write(&field_result.unwrap_or_else(|e| e.desc))?;
     Ok(())
 }
 
