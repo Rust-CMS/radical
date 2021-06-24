@@ -40,7 +40,7 @@ async fn main() -> std::io::Result<()> {
     let handlebars_ref = web::Data::new(Mutex::new(handlebars));
     let hb = handlebars_ref.clone();
     
-    helpers::default::register_helpers(hb.clone());
+    helpers::default::register_helpers(handlebars_ref.clone());
 
     std::thread::spawn(|| watch::watch(hb));
 
