@@ -13,8 +13,8 @@ use crate::models::page_models::{MutPage, Page};
 use crate::middleware::errors_middleware::{map_sql_error, CustomHttpError};
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, CustomHttpError> {
-    let origin_page = &page_vec.get(0).ok_or(CustomHttpError::NotFound)?.0;
+fn parse_page(page: (Page, Vec<Module>)) -> Result<PageModuleRelation, CustomHttpError> {
+    let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
     let mut res = PageModuleRelation {
@@ -26,9 +26,7 @@ fn parse_page(page_vec: Vec<(Page, Module)>) -> Result<PageModuleRelation, Custo
         page_id: origin_page.id,
     };
 
-    // Parsing of the tuples starts here.
-    for tuple in page_vec {
-        let module = tuple.1;
+    for module in page.1 {
         res.fields.insert(module.title.clone(), module);
     }
 
@@ -42,12 +40,11 @@ pub async fn display_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    let page_vec = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
-    // Parse it in to one single page.
+    let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
     let pagemodule = parse_page(page_vec)?;
     
     let s = hb.lock().unwrap().render(&pagemodule.page_name, &pagemodule).unwrap();
-
+  
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
 

@@ -3,9 +3,13 @@ use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
 use super::Model;
+use super::page_models::Page;
 use crate::schema::modules;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]
+#[belongs_to(Page)]
+#[primary_key(module_id)]
+#[table_name = "modules"]
 pub struct Module {
     pub module_id: i32,
     pub module_type_id: i32,

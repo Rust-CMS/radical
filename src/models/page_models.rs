@@ -2,17 +2,16 @@ use std::collections::HashMap;
 
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
 use super::Joinable;
 
-use super::Model;
 use super::module_models::Module;
+use super::Model;
 use crate::schema::pages;
 
 /// The main Rust implementation for the Page model.
-#[derive(Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
+#[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
     pub id: i32,
     /// This should match the name of the HTML file.
@@ -50,8 +49,8 @@ impl Model<Page, MutPage, i32> for Page {
     }
 
     fn read_one(_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
-        use crate::schema::pages::dsl::pages;
         use crate::schema::pages::dsl::id;
+        use crate::schema::pages::dsl::pages;
 
         pages.filter(id.eq(_id)).first::<Self>(db)
     }
@@ -65,8 +64,8 @@ impl Model<Page, MutPage, i32> for Page {
         new_page: &MutPage,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::pages;
         use crate::schema::pages::dsl::id;
+        use crate::schema::pages::dsl::pages;
 
         Ok(diesel::update(pages.filter(id.eq(_id)))
             .set(new_page)
@@ -74,8 +73,8 @@ impl Model<Page, MutPage, i32> for Page {
     }
 
     fn delete(_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::pages;
         use crate::schema::pages::dsl::id;
+        use crate::schema::pages::dsl::pages;
 
         Ok(diesel::delete(pages.filter(id.eq(_id))).execute(db)?)
     }
@@ -86,14 +85,14 @@ impl Joinable<Page, Module, String> for Page {
     fn read_one_join_on(
         id: String,
         db: &MysqlConnection,
-    ) -> Result<Vec<(Self, Module)>, diesel::result::Error> {
-        use crate::schema::modules::dsl::modules;
-        use crate::schema::pages::dsl::pages;
+    ) -> Result<(Self, Vec<Module>), diesel::result::Error> {
         use crate::schema::pages::dsl::page_url;
 
-        pages
-            .inner_join(modules)
-            .filter(page_url.eq(id))
-            .load::<(Page, Module)>(db)
+        let filtered_page = pages::table.filter(page_url.eq(id)).first::<Page>(db)?;
+
+        let modules = Module::belonging_to(&filtered_page)
+            .load::<Module>(db)?;
+
+        Ok((filtered_page, modules))
     }
 }
