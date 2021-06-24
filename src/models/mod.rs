@@ -33,7 +33,7 @@ pub trait Joinable<TLeft, TRight, TPrimary> {
     fn read_one_join_on(
         id: TPrimary,
         db: &MysqlConnection,
-    ) -> Result<Vec<(TLeft, TRight)>, diesel::result::Error>;
+    ) -> Result<(TLeft, Vec<TRight>), diesel::result::Error>;
 }
 
 pub fn establish_database_connection() -> Option<MySQLPool> {
