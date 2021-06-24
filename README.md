@@ -55,6 +55,8 @@ First, create a file named `.env`.
 
 Next, put in your MySQL connection string. Extensive examples for a full .env can be seen [here](#environment-variables).
 
+The MySQL connection string is not used for the program connecting to the database (this is done in rcms.json), but rather for running the migrations.
+
 `DATABASE_URL=mysql://rustcms:rustcms@localhost:3306/rustcms`
 
 5. Run Diesel migrations.
