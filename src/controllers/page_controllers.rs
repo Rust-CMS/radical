@@ -45,10 +45,6 @@ pub async fn display_page(
     let page_vec = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
     // Parse it in to one single page.
     let pagemodule = parse_page(page_vec)?;
-
-    // TODO this should only happen on request of template reload. maybe add a path to config?
-    hb.lock().unwrap().clear_templates();
-    hb.lock().unwrap().register_templates_directory(".html", "./templates").unwrap();
     
     let s = hb.lock().unwrap().render(&pagemodule.page_name, &pagemodule).unwrap();
 
