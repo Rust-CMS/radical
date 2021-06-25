@@ -1,5 +1,4 @@
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
-
 use serde::Serialize;
 use thiserror::Error;
 /// A custom type that defines errors that are mapped to HTTP errors later.
@@ -54,9 +53,11 @@ impl ResponseError for CustomHttpError {
 }
 
 /// Any time an SQL query fails, it gets mapped to here.
-pub fn map_sql_error(e: diesel::result::Error) -> CustomHttpError {
-    match e {
-        diesel::result::Error::NotFound => CustomHttpError::NotFound,
-        _ => CustomHttpError::Unknown,
+impl From<diesel::result::Error> for CustomHttpError {
+    fn from(e: diesel::result::Error) -> Self {
+        match e {
+            diesel::result::Error::NotFound => CustomHttpError::NotFound,
+            _ => CustomHttpError::Unknown,
+        }
     }
 }
