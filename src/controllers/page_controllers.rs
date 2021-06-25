@@ -10,7 +10,7 @@ use crate::models::module_models::Module;
 use crate::models::page_models::PageModuleRelation;
 use crate::models::page_models::{MutPage, Page};
 
-use crate::middleware::errors_middleware::{map_sql_error, CustomHttpError};
+use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
 fn parse_page(page: (Page, Vec<Module>)) -> Result<PageModuleRelation, CustomHttpError> {
@@ -40,11 +40,21 @@ pub async fn display_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
-    let pagemodule = parse_page(page_tuple)?;
-    
-    let s = hb.lock().unwrap().render(&pagemodule.page_name, &pagemodule).unwrap();
-  
+    let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool);
+
+    if let Err(_) = page_tuple {
+        let s = hb.lock().unwrap().render("404", &String::from("")).unwrap();
+        return Ok(HttpResponse::Ok().content_type("text/html").body(s));
+    }
+
+    let pagemodule = parse_page(page_tuple?)?;
+
+    let s = hb
+        .lock()
+        .unwrap()
+        .render(&pagemodule.page_name, &pagemodule)
+        .unwrap();
+
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
 
@@ -54,14 +64,14 @@ pub async fn create_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::create(&new_page, &mysql_pool).map_err(map_sql_error)?;
+    Page::create(&new_page, &mysql_pool)?;
 
     HttpResponseBuilder::new(201, &*new_page)
 }
 
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let pages: Vec<Page> = Page::read_all(&mysql_pool).map_err(map_sql_error)?;
+    let pages: Vec<Page> = Page::read_all(&mysql_pool)?;
 
     HttpResponseBuilder::new(200, &pages)
 }
@@ -72,7 +82,7 @@ pub async fn get_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page: Page = Page::read_one(*id, &mysql_pool).map_err(map_sql_error)?;
+    let page: Page = Page::read_one(*id, &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &page)
 }
@@ -86,8 +96,7 @@ pub async fn get_page_join_modules(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page_vec =
-        Page::read_one_join_on(id.to_string(), &mysql_pool).map_err(map_sql_error)?;
+    let page_vec = Page::read_one_join_on(id.to_string(), &mysql_pool)?;
 
     let pagemodules = parse_page(page_vec).or(Err(CustomHttpError::NotFound))?;
 
@@ -101,7 +110,7 @@ pub async fn update_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::update(*id, &updated_page, &mysql_pool).map_err(map_sql_error)?;
+    Page::update(*id, &updated_page, &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &*updated_page)
 }
@@ -112,7 +121,7 @@ pub async fn delete_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::delete(*id, &mysql_pool).map_err(map_sql_error)?;
+    Page::delete(*id, &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
 }

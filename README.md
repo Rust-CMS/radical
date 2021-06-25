@@ -11,10 +11,10 @@ Version: Pre-alpha
 |             | Ready |
 | ----------- | ----------- |
 | Backend | ✅ |
-| Frontend | - |
+| Frontend | ✅ |
 | Production | ❌ |
 
-Currently this project has no frontend and is just a backend API.
+This project has a functioning frontend, but it is not fully featured yet.
 
 ## Note on testing
 
@@ -92,9 +92,11 @@ Most all environment setup will be handled by an installer GUI in the future. Fo
 }
 ```
 
+## Notes on 404 Pages
+
+404s are handled (currently) by creating a file called `404.html.` It will automatically be added as your 404 page.
+
 ## Repositories Like This
-
-
 
 Markdown static site generators:
 

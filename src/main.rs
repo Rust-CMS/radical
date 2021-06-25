@@ -39,6 +39,11 @@ async fn main() -> std::io::Result<()> {
     let handlebars_ref = web::Data::new(Mutex::new(handlebars));
     let hb = handlebars_ref.clone();
 
+    hb.lock()
+        .unwrap()
+        .register_templates_directory(".html", "./templates")
+        .unwrap();
+
     // Registers all default handlebars functions.
     helpers::default::register_helpers(handlebars_ref.clone());
 

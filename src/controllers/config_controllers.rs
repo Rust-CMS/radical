@@ -9,7 +9,7 @@ use std::{
 
 use crate::models::Model;
 
-use crate::middleware::errors_middleware::{map_sql_error, CustomHttpError};
+use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
 use crate::models::{pool_handler, MySQLPool};
@@ -53,7 +53,7 @@ pub async fn read_all_database_config(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let all = Config::read_all(&mysql_pool).map_err(map_sql_error)?;
+    let all = Config::read_all(&mysql_pool)?;
     HttpResponseBuilder::new(200, &all)
 }
 
@@ -62,7 +62,7 @@ pub async fn read_one_database_config(
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let one = Config::read_one(id.to_string(), &mysql_pool).map_err(map_sql_error)?;
+    let one = Config::read_one(id.to_string(), &mysql_pool)?;
     HttpResponseBuilder::new(200, &one)
 }
 
@@ -72,6 +72,6 @@ pub async fn update_database_config(
     mut_config: web::Json<MutConfig>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let us = Config::update(id.to_string(), &mut_config, &mysql_pool).map_err(map_sql_error)?;
+    let us = Config::update(id.to_string(), &mut_config, &mysql_pool)?;
     HttpResponseBuilder::new(200, &us)
 }
