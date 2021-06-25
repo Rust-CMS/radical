@@ -42,7 +42,7 @@ pub async fn display_page(
     let path = req.path();
     let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool);
 
-    if let Err(x) = page_tuple {
+    if let Err(_) = page_tuple {
         let s = hb.lock().unwrap().render("404", &String::from("")).unwrap();
         return Ok(HttpResponse::Ok().content_type("text/html").body(s));
     }
