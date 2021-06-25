@@ -1,5 +1,5 @@
 use crate::models::config_models::{Config, MutConfig};
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -58,30 +58,20 @@ pub async fn read_all_database_config(
 }
 
 pub async fn read_one_database_config(
-    req: HttpRequest,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let config_id: String = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?
-        .to_owned();
-    let one = Config::read_one(config_id, &mysql_pool).map_err(map_sql_error)?;
+    let one = Config::read_one(id.to_string(), &mysql_pool).map_err(map_sql_error)?;
     HttpResponseBuilder::new(200, &one)
 }
 
 pub async fn update_database_config(
-    req: HttpRequest,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
     mut_config: web::Json<MutConfig>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let config_id: String = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?
-        .to_owned();
-    let us = Config::update(config_id, &mut_config, &mysql_pool).map_err(map_sql_error)?;
+    let us = Config::update(id.to_string(), &mut_config, &mysql_pool).map_err(map_sql_error)?;
     HttpResponseBuilder::new(200, &us)
 }

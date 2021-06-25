@@ -53,14 +53,6 @@ impl ResponseError for CustomHttpError {
     }
 }
 
-/// Used whenever parsing ints out of the URLs.
-pub fn map_int_parsing_error(e: std::num::ParseIntError) -> CustomHttpError {
-    match e.kind() {
-        std::num::IntErrorKind::InvalidDigit => CustomHttpError::BadRequest,
-        _ => CustomHttpError::Unknown,
-    }
-}
-
 /// Any time an SQL query fails, it gets mapped to here.
 pub fn map_sql_error(e: diesel::result::Error) -> CustomHttpError {
     match e {

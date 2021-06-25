@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, HttpResponse};
 use handlebars::Handlebars;
 
 use crate::models::{pool_handler, Joinable, Model, MySQLPool};
@@ -41,7 +41,7 @@ pub async fn display_page(
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
     let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool).map_err(map_sql_error)?;
-    let pagemodule = parse_page(page_vec)?;
+    let pagemodule = parse_page(page_tuple)?;
     
     let s = hb.lock().unwrap().render(&pagemodule.page_name, &pagemodule).unwrap();
   
@@ -49,15 +49,14 @@ pub async fn display_page(
 }
 
 pub async fn create_page(
-    req_body: String,
+    new_page: web::Json<MutPage>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let new_page: MutPage = serde_json::from_str(&req_body).or(Err(CustomHttpError::BadRequest))?;
 
     Page::create(&new_page, &mysql_pool).map_err(map_sql_error)?;
 
-    HttpResponseBuilder::new(201, &new_page)
+    HttpResponseBuilder::new(201, &*new_page)
 }
 
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
@@ -82,17 +81,13 @@ pub async fn get_page(
 /// A tuple generates a nasty response that isn't well defined.
 /// This function parses it in to a Page that has all of the Modules as children.
 pub async fn get_page_join_modules(
-    req: HttpRequest,
+    id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let page_id: &str = req
-        .match_info()
-        .get("id")
-        .ok_or(CustomHttpError::BadRequest)?;
 
     let page_vec =
-        Page::read_one_join_on(page_id.to_string(), &mysql_pool).map_err(map_sql_error)?;
+        Page::read_one_join_on(id.to_string(), &mysql_pool).map_err(map_sql_error)?;
 
     let pagemodules = parse_page(page_vec).or(Err(CustomHttpError::NotFound))?;
 
@@ -100,15 +95,15 @@ pub async fn get_page_join_modules(
 }
 
 pub async fn update_page(
-    u_page: web::Json<MutPage>,
+    updated_page: web::Json<MutPage>,
     id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::update(*id, &u_page, &mysql_pool).map_err(map_sql_error)?;
+    Page::update(*id, &updated_page, &mysql_pool).map_err(map_sql_error)?;
 
-    HttpResponseBuilder::new(200, &*u_page)
+    HttpResponseBuilder::new(200, &*updated_page)
 }
 
 pub async fn delete_page(

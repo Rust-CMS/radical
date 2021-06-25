@@ -16,6 +16,14 @@ Version: Pre-alpha
 
 Currently this project has no frontend and is just a backend API.
 
+## Note on testing
+
+Whenever you run the tests, it is best to have a clean database.
+
+You **MUST** run it using this command (since mocking for Diesel isn't mature yet):
+
+`cargo test -- --test-thread=1`
+
 ## Dev Environment Setup
 
 Required items:
