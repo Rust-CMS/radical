@@ -1,9 +1,14 @@
 #![feature(try_blocks)]
 
-use std::sync::Mutex;
 use actix_cors::Cors;
+use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
+use controllers::config_controllers::LocalConfig;
 use handlebars::Handlebars;
+use std::fs::File;
+use std::io::BufReader;
+use std::sync::Mutex;
+use log::{info};
 
 use actix_files as fs;
 
@@ -30,7 +35,14 @@ extern crate diesel;
 /// All routes are defined here.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let pool = models::establish_database_connection().unwrap();
+    let config_file = File::open("./rcms.json").expect("Failed to open config file.");
+    let reader = BufReader::new(config_file);
+    let conf: LocalConfig = serde_json::from_reader(reader).expect("Failed to read config file.");
+
+    let pool = models::establish_database_connection(conf.clone()).unwrap();
+
+    std::env::set_var("RUST_LOG", "actix_web=info");
+    env_logger::init();
 
     let handlebars = Handlebars::new();
 
@@ -50,7 +62,13 @@ async fn main() -> std::io::Result<()> {
     // This is what enables hot reload.
     std::thread::spawn(|| watch::watch(hb));
 
-    HttpServer::new(move || {
+    let server_url = &format!(
+        "{}:{}",
+        &conf.bind_address.unwrap(),
+        &conf.bind_port.unwrap()
+    );
+
+    let http_server = HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
             .allow_any_header()
@@ -58,6 +76,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .wrap(cors)
+            .wrap(Logger::new("%a -> %U | %Dms "))
             .service(
                 web::scope("/v1")
                     .service(PageRouter::new())
@@ -70,8 +89,11 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .app_data(handlebars_ref.clone())
     })
-    .bind("127.0.0.1:9090")?
+    .bind(server_url)?
     .workers(2)
-    .run()
-    .await
+    .run();
+
+    println!("🚀 Server is running 🚀");
+
+    http_server.await
 }

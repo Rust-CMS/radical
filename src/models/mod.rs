@@ -2,7 +2,6 @@ pub mod config_models;
 pub mod module_models;
 pub mod page_models;
 
-use std::{fs::File, io::BufReader};
 use actix_web::web;
 use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
 
@@ -34,10 +33,7 @@ pub trait Joinable<TLeft, TRight, TPrimary> {
     ) -> Result<(TLeft, Vec<TRight>), diesel::result::Error>;
 }
 
-pub fn establish_database_connection() -> Option<MySQLPool> {
-    let config_file = File::open("./rcms.json").expect("Failed to open config file.");
-    let reader = BufReader::new(config_file);
-    let conf: LocalConfig = serde_json::from_reader(reader).expect("Failed to read config file.");
+pub fn establish_database_connection(conf: LocalConfig) -> Option<MySQLPool> {
     let db_url = format!(
         "mysql://{}:{}@{}:{}/{}",
         conf.mysql_username?,

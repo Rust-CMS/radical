@@ -88,7 +88,9 @@ Most all environment setup will be handled by an installer GUI in the future. Fo
     "mysql_password": String,
     "mysql_url": String,
     "mysql_port": Number,
-    "mysql_database": String
+    "mysql_database": String,
+    "bind_address": String,
+    "bind_port": Number
 }
 ```
 
