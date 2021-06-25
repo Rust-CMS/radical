@@ -3,7 +3,6 @@ use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
 use crate::models::Model;
-
 use crate::schema::web_config;
 
 #[derive(Queryable, Deserialize, Serialize, PartialEq, Clone)]

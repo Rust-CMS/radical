@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::Joinable;
-
 use super::module_models::Module;
 use super::Model;
 use crate::schema::pages;

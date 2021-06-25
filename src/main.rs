@@ -1,7 +1,6 @@
 #![feature(try_blocks)]
 
 use std::sync::Mutex;
-
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use handlebars::Handlebars;

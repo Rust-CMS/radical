@@ -3,7 +3,6 @@ pub mod module_models;
 pub mod page_models;
 
 use std::{fs::File, io::BufReader};
-
 use actix_web::web;
 use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
 
