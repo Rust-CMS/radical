@@ -26,6 +26,8 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
+    pub id: Option<i32>,
+    pub page_name: String,
     pub page_url: String,
     pub page_title: String,
 }
