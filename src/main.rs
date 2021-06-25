@@ -1,7 +1,7 @@
 #![feature(int_error_matching)]
 #![feature(try_blocks)]
 
-use std::sync::{Mutex};
+use std::sync::Mutex;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
@@ -10,12 +10,12 @@ use handlebars::Handlebars;
 use actix_files as fs;
 
 mod controllers;
+mod helpers;
 mod middleware;
 mod models;
 mod routers;
 mod schema;
 mod watch;
-mod helpers;
 
 #[cfg(test)]
 mod tests;
@@ -35,13 +35,16 @@ async fn main() -> std::io::Result<()> {
     let pool = models::establish_database_connection().unwrap();
 
     let handlebars = Handlebars::new();
-    
+
     // web::Data is Arc, so we can safely clone it and send it between our watcher and the server.
     let handlebars_ref = web::Data::new(Mutex::new(handlebars));
     let hb = handlebars_ref.clone();
-    
+
+    // Registers all default handlebars functions.
     helpers::default::register_helpers(handlebars_ref.clone());
 
+    // Registers the fs watcher that updates the templates in memory every time a template is changed.
+    // This is what enables hot reload.
     std::thread::spawn(|| watch::watch(hb));
 
     HttpServer::new(move || {

@@ -6,6 +6,7 @@ use std::sync::mpsc::channel;
 use std::sync::Mutex;
 use std::time::Duration;
 
+/// Watches the templates directory and refreshes the templates in memory on update.
 pub fn watch(hb: Data<Mutex<handlebars::Handlebars<'_>>>) -> notify::Result<()> {
     let (tx, rx) = channel();
 

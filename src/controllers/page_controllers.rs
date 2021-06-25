@@ -48,7 +48,6 @@ pub async fn display_page(
     Ok(HttpResponse::Ok().content_type("text/html").body(s))
 }
 
-/// Creates a page by passing a page-like JSON object.
 pub async fn create_page(
     req_body: String,
     pool: web::Data<MySQLPool>,
@@ -61,7 +60,6 @@ pub async fn create_page(
     HttpResponseBuilder::new(201, &new_page)
 }
 
-/// Gets all pages.
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let pages: Vec<Page> = Page::read_all(&mysql_pool).map_err(map_sql_error)?;
@@ -69,7 +67,6 @@ pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, Custo
     HttpResponseBuilder::new(200, &pages)
 }
 
-/// Gets one page by ID.
 pub async fn get_page(
     id: web::Path<i32>,
     pool: web::Data<MySQLPool>,
@@ -102,7 +99,6 @@ pub async fn get_page_join_modules(
     HttpResponseBuilder::new(200, &pagemodules)
 }
 
-/// Updates a page by passing it a page-like JSON object and page ID.
 pub async fn update_page(
     u_page: web::Json<MutPage>,
     id: web::Path<i32>,
@@ -115,7 +111,6 @@ pub async fn update_page(
     HttpResponseBuilder::new(200, &*u_page)
 }
 
-/// Deletes a page by passing an id.
 pub async fn delete_page(
     id: web::Path<i32>,
     pool: web::Data<MySQLPool>,

@@ -10,7 +10,6 @@ use super::module_models::Module;
 use super::Model;
 use crate::schema::pages;
 
-/// The main Rust implementation for the Page model.
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
     pub id: i32,
@@ -21,8 +20,7 @@ pub struct Page {
     pub page_title: String,
     pub time_created: NaiveDateTime,
 }
-/// This acts as both the insertable and update object.
-/// This can be done since pages only really have a `title` column that isn't auto filled.
+
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "pages"]
 pub struct MutPage {
@@ -38,6 +36,7 @@ pub struct PageModuleRelation {
     pub page_title: String,
     pub time_created: NaiveDateTime,
     /// the key of the hashmap is the `title` of the module, and the rest is the module.
+    /// For the usefulness of this, see the `get` function on the default helpers.
     pub fields: HashMap<String, Module>,
 }
 
@@ -80,7 +79,6 @@ impl Model<Page, MutPage, i32> for Page {
     }
 }
 
-/// Separate implementation for joinable trait.
 impl Joinable<Page, Module, String> for Page {
     fn read_one_join_on(
         id: String,
