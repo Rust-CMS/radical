@@ -31,7 +31,7 @@ pub struct MutPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PageModuleRelation {
+pub struct PageModuleDTO {
     pub page_id: i32,
     pub page_name: String,
     pub page_url: String,

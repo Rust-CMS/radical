@@ -26,9 +26,8 @@ pub trait Model<TQueryable, TMutable, TPrimary> {
 }
 
 /// Trait that enforces a  Model to be joinable if that is desired.
-/// Usually used for inner joins in this program.
-/// If implemented another way, make sure to follow the generic labelling.
-/// First parameter MUST be the left table, and second parameter MUST be the right table.
+/// This should use associations rather than Left or Right join.
+/// https://docs.diesel.rs/diesel/associations/index.html
 pub trait Joinable<TLeft, TRight, TPrimary> {
     fn read_one_join_on(
         id: TPrimary,
