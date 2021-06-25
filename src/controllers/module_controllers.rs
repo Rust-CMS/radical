@@ -4,7 +4,6 @@ use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{Module, MutModule};
 
 use crate::middleware::errors_middleware::CustomHttpError;
-
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
 pub async fn create_module(

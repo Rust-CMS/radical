@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::Joinable;
-
 use super::module_models::Module;
 use super::Model;
 use crate::schema::pages;
@@ -31,7 +29,7 @@ pub struct MutPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PageModuleRelation {
+pub struct PageModuleDTO {
     pub page_id: i32,
     pub page_name: String,
     pub page_url: String,

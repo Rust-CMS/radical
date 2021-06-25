@@ -1,5 +1,4 @@
 use std::sync::Mutex;
-
 use actix_web::web::Data;
 use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
 
