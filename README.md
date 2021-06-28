@@ -1,4 +1,6 @@
-# RustCMS by Spencer Bills
+# RCMS
+
+> Name Suggestions Appreciated
 
 ## Project Description
 
