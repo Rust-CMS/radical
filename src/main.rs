@@ -3,12 +3,10 @@
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
-use controllers::config_controllers::LocalConfig;
 use handlebars::Handlebars;
-use std::fs::File;
-use std::io::BufReader;
 use std::sync::Mutex;
-use log::{info};
+use envy;
+use dotenv::dotenv;
 
 use actix_files as fs;
 
@@ -27,6 +25,8 @@ use routers::config_routers::{DatabaseConfigRouter, LocalConfigRouter};
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
+use crate::controllers::config_controllers::LocalConfig;
+
 #[macro_use]
 extern crate diesel;
 
@@ -35,10 +35,9 @@ extern crate diesel;
 /// All routes are defined here.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let config_file = File::open("./rcms.json").expect("Failed to open config file.");
-    let reader = BufReader::new(config_file);
-    let conf: LocalConfig = serde_json::from_reader(reader).expect("Failed to read config file.");
+    dotenv().unwrap();
 
+    let conf = envy::from_env::<LocalConfig>().unwrap();
     let pool = models::establish_database_connection(conf.clone()).unwrap();
 
     std::env::set_var("RUST_LOG", "actix_web=info");
