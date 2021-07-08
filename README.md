@@ -24,6 +24,10 @@ You **MUST** run it using this command (since mocking for Diesel isn't mature ye
 
 `cargo test -- --test-thread=1`
 
+## Production Environment Setup
+
+It is best if you use the docker-compose tooling. Check [here](https://github.com/Rust-CMS/tooling).
+
 ## Dev Environment Setup
 
 Required items:
@@ -63,7 +67,7 @@ First, create a file named `.env`.
 
 Next, put in your MySQL connection string. Extensive examples for a full .env can be seen [here](#environment-variables).
 
-The MySQL connection string is not used for the program connecting to the database (this is done in rcms.json), but rather for running the migrations.
+The MySQL connection string is not used for the program connecting to the database, but rather for running the migrations. This is usually not required to be done manually.
 
 `DATABASE_URL=mysql://rustcms:rustcms@localhost:3306/rustcms`
 
@@ -78,20 +82,16 @@ Next, run the migrations.
 `diesel migration run`
 
 ## Environment Variables
-Most all environment setup will be handled by an installer GUI in the future. For now, we put all "environment" variables into `rcms.json`.
+Most all environment setup will be handled by an installer GUI in the future.
 
-## rcms.json examples
-
-```json
-{
-    "mysql_username": String,
-    "mysql_password": String,
-    "mysql_url": String,
-    "mysql_port": Number,
-    "mysql_database": String,
-    "bind_address": String,
-    "bind_port": Number
-}
+```yaml
+mysql_username=String
+mysql_password=String
+mysql_url=String
+mysql_port=Number
+mysql_database=String
+bind_address=String
+bind_port=Number
 ```
 
 ## Notes on 404 Pages
