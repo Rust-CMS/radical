@@ -17,11 +17,11 @@ pub fn establish_database_connection() -> Option<MySQLPool> {
     let conf: LocalConfig = serde_json::from_reader(reader).expect("Failed to read config file.");
     let db_url = format!(
         "mysql://{}:{}@{}:{}/{}",
-        conf.mysql_username?,
-        conf.mysql_password?,
-        conf.mysql_url?,
-        conf.mysql_port?,
-        conf.mysql_database?
+        conf.mysql_username,
+        conf.mysql_password,
+        conf.mysql_url,
+        conf.mysql_port,
+        conf.mysql_database
     );
 
     Some(init_pool(&db_url).expect("Failed to create pool."))
