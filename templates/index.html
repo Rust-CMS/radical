@@ -10,8 +10,10 @@
 
 <body>
     <h1>{{ page_title }}</h1>
-    <p>{{get "title"}}</p>
     <small>{{get "small"}}</small>
+    {{#each getarray "title"}}
+        <p>{{this}}</p>
+    {{/each}}
 </body>
 
 </html>
