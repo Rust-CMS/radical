@@ -1,12 +1,19 @@
 FROM rustlang/rust:nightly-buster-slim as cargo-build
-RUN ["apt", "update"]
-RUN ["apt", "install", "-y", "default-libmysqlclient-dev"]
+RUN apt update
+RUN apt install -y default-libmysqlclient-dev
 WORKDIR /usr/src/rcms
 COPY . .
 RUN cargo install --path .
 
-FROM alpine:latest
-RUN ["apk", "add", "mariadb-dev"]
-COPY --from=cargo-build /usr/src/rcms/target/release/rust-cms /usr/local/bin/rcms
+FROM debian:buster-slim
+RUN apt update
+RUN apt install -y default-libmysqlclient-dev
+WORKDIR /usr/src/rcms
+COPY --from=cargo-build /usr/src/rcms/target/release/rust-cms /usr/bin/rcms
+COPY templates ./templates
+COPY migrations ./migrations
+COPY wait-for-it.sh .
 
-CMD ["rcms"]
+ENV APP_PRODUCTION=true
+
+CMD [ "rcms" ]
