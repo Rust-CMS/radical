@@ -17,13 +17,13 @@ use crate::models::{pool_handler, MySQLPool};
 /// This will be exported into by serde. See the `rcms.json` file in the root of the project for config information.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct LocalConfig {
-    pub mysql_username: Option<String>,
-    pub mysql_password: Option<String>,
-    pub mysql_database: Option<String>,
-    pub mysql_url: Option<String>,
-    pub mysql_port: Option<u16>,
-    pub bind_address: Option<String>,
-    pub bind_port: Option<u16>
+    pub mysql_username: String,
+    pub mysql_password: String,
+    pub mysql_database: String,
+    pub mysql_url: String,
+    pub mysql_port: u16,
+    pub bind_address: String,
+    pub bind_port: u16
 }
 
 pub async fn update_local_config(

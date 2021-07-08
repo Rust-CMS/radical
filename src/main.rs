@@ -37,7 +37,7 @@ extern crate diesel;
 async fn main() -> std::io::Result<()> {
     dotenv().unwrap();
 
-    let conf = envy::from_env::<LocalConfig>().unwrap();
+    let conf = envy::prefixed("APP_").from_env::<LocalConfig>().unwrap();
     let pool = models::establish_database_connection(conf.clone()).unwrap();
 
     std::env::set_var("RUST_LOG", "actix_web=info");
@@ -63,8 +63,8 @@ async fn main() -> std::io::Result<()> {
 
     let server_url = &format!(
         "{}:{}",
-        &conf.bind_address.unwrap(),
-        &conf.bind_port.unwrap()
+        &conf.bind_address,
+        &conf.bind_port
     );
 
     let http_server = HttpServer::new(move || {

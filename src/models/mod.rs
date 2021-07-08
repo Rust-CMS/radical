@@ -36,11 +36,11 @@ pub trait Joinable<TLeft, TRight, TPrimary> {
 pub fn establish_database_connection(conf: LocalConfig) -> Option<MySQLPool> {
     let db_url = format!(
         "mysql://{}:{}@{}:{}/{}",
-        conf.mysql_username?,
-        conf.mysql_password?,
-        conf.mysql_url?,
-        conf.mysql_port?,
-        conf.mysql_database?
+        conf.mysql_username,
+        conf.mysql_password,
+        conf.mysql_url,
+        conf.mysql_port,
+        conf.mysql_database
     );
 
     Some(init_pool(&db_url).expect("Failed to create pool."))
