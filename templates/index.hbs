@@ -5,13 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./assets/main.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>{{ page_title }}</title>
 </head>
 
 <body>
     <h1>{{ page_title }}</h1>
-    <p>{{get "title"}}</p>
+    <hr>
+    <h1>{{get "title"}}</h1>
     <small>{{get "small"}}</small>
+
+    <br>
+
+    {{#each (getarray "colors") as |t| }}
+        <div class="card d-flex flex-column p-5 m-2 w-25">
+            <div class="card-body">
+                <h5 class="card-title">Title: {{t.title}}</h5>
+                <p class="card-text">Name: {{t.content}}</p>
+                <small>{{@index}}</small>
+            </div>
+        </div>
+        {{else}}
+        <p>WRONG</p>
+    {{/each}}
 </body>
 
 </html>
