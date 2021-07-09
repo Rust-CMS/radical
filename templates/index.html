@@ -11,13 +11,14 @@
 
 <body>
     <h1>{{ page_title }}</h1>
+    <hr>
     <h1>{{get "title"}}</h1>
     <small>{{get "small"}}</small>
 
     <br>
 
-    {{#each (lookup ../array_fields "friends") as |t| }}
-        <div class="card d-flex flex-column p-5 m-5 w-25">
+    {{#each (lookup ../array_fields "colors") as |t| }}
+        <div class="card d-flex flex-column p-5 m-2 w-25">
             <div class="card-body">
                 <h5 class="card-title">Title: {{t.title}}</h5>
                 <p class="card-text">Name: {{t.content}}</p>

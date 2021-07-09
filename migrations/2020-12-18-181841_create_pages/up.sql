@@ -24,6 +24,8 @@ CREATE TABLE module_category (
     title varchar(100) NOT NULL
 );
 
+insert ignore into module_category (title) VALUES ("colors");
+
 CREATE TABLE IF NOT EXISTS modules (
     module_id int AUTO_INCREMENT PRIMARY KEY NOT NULL,
     module_type_id int NOT NULL,
@@ -36,7 +38,11 @@ CREATE TABLE IF NOT EXISTS modules (
     FOREIGN KEY (category) REFERENCES module_category(id) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO modules (module_type_id, title, page_id, content) VALUES (1, "title", 1, "Hello world!");
+INSERT IGNORE INTO modules (module_type_id, title, page_id, content) VALUES (1, "title", 1, "This is the `title` module!!");
+INSERT IGNORE INTO modules (module_type_id, title, page_id, content) VALUES (1, "small", 1, "This is the `small` module!");
+INSERT IGNORE INTO modules (module_type_id, title, page_id, content, category) VALUES (1, "color1", 1, "red", 1);
+INSERT IGNORE INTO modules (module_type_id, title, page_id, content, category) VALUES (1, "color2", 1, "blue", 1);
+INSERT IGNORE INTO modules (module_type_id, title, page_id, content, category) VALUES (1, "color3", 1, "green", 1);
 
 CREATE TABLE IF NOT EXISTS web_config (
     config_key VARCHAR(100) PRIMARY KEY NOT NULL,
