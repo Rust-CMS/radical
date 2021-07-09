@@ -1,4 +1,11 @@
 table! {
+    module_category (id) {
+        id -> Integer,
+        title -> Varchar,
+    }
+}
+
+table! {
     module_types (module_type_id) {
         module_type_id -> Integer,
         title -> Varchar,
@@ -13,6 +20,7 @@ table! {
         title -> Varchar,
         page_id -> Integer,
         content -> Text,
+        category -> Nullable<Integer>,
     }
 }
 
@@ -33,10 +41,12 @@ table! {
     }
 }
 
+joinable!(modules -> module_category (category));
 joinable!(modules -> module_types (module_type_id));
 joinable!(modules -> pages (page_id));
 
 allow_tables_to_appear_in_same_query!(
+    module_category,
     module_types,
     modules,
     pages,

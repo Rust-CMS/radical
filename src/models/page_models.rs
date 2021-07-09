@@ -1,11 +1,12 @@
-use std::collections::HashMap;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-use super::Joinable;
 use super::module_models::Module;
 use super::Model;
+use crate::models::module_models::ModuleCategory;
+use crate::schema::module_category;
 use crate::schema::pages;
 
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
@@ -38,6 +39,7 @@ pub struct PageModuleDTO {
     /// the key of the hashmap is the `title` of the module, and the rest is the module.
     /// For the usefulness of this, see the `get` function on the default helpers.
     pub fields: HashMap<String, Module>,
+    pub array_fields: HashMap<String, Vec<Module>>,
 }
 
 impl Model<Page, MutPage, i32> for Page {
@@ -79,18 +81,30 @@ impl Model<Page, MutPage, i32> for Page {
     }
 }
 
-impl Joinable<Page, Module, String> for Page {
-    fn read_one_join_on(
+impl Page {
+    pub fn read_one_join_on(
         id: String,
         db: &MysqlConnection,
-    ) -> Result<(Self, Vec<Module>), diesel::result::Error> {
+    ) -> Result<(Self, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>), diesel::result::Error> {
         use crate::schema::pages::dsl::page_url;
 
         let filtered_page = pages::table.filter(page_url.eq(id)).first::<Page>(db)?;
 
-        let modules = Module::belonging_to(&filtered_page)
-            .load::<Module>(db)?;
+        let modules = Module::belonging_to(&filtered_page).load::<Module>(db)?;
 
-        Ok((filtered_page, modules))
+        let categories = Module::belonging_to(&filtered_page)
+            .inner_join(module_category::table)
+            .select(module_category::all_columns)
+            .load::<ModuleCategory>(db)?;
+
+        let module_array: Vec<(Vec<Module>, ModuleCategory)> = Module::belonging_to(&categories)
+            .load::<Module>(db)?
+            .grouped_by(&categories)
+            .iter()
+            .map(|a| a.clone())
+            .zip(categories)
+            .collect::<Vec<_>>();
+            
+        Ok((filtered_page, module_array, modules))
     }
 }

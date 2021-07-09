@@ -2,12 +2,16 @@ use diesel::prelude::*;
 use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-use super::Model;
 use super::page_models::Page;
+use super::Model;
+use crate::schema::module_category;
 use crate::schema::modules;
 
-#[derive(Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]
+#[derive(
+    Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash,
+)]
 #[belongs_to(Page)]
+#[belongs_to(ModuleCategory, foreign_key = "category")]
 #[primary_key(module_id)]
 #[table_name = "modules"]
 pub struct Module {
@@ -16,6 +20,7 @@ pub struct Module {
     pub title: String,
     pub page_id: i32,
     pub content: String,
+    pub category: Option<i32>,
 }
 
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
@@ -26,6 +31,15 @@ pub struct MutModule {
     pub title: String,
     pub page_id: i32,
     pub content: String,
+}
+
+#[derive(
+    Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash,
+)]
+#[table_name = "module_category"]
+pub struct ModuleCategory {
+    pub id: i32,
+    pub title: String
 }
 
 impl Model<Module, MutModule, i32> for Module {
@@ -47,7 +61,10 @@ impl Model<Module, MutModule, i32> for Module {
     }
 
     fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
-        Ok(modules::table.load::<Module>(db)?)
+        use modules::dsl::category;
+        Ok(modules::table
+            .filter(category.is_null())
+            .load::<Module>(db)?)
     }
 
     fn delete(mod_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {

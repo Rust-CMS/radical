@@ -4,16 +4,16 @@ use std::sync::Mutex;
 use actix_web::{web, HttpResponse};
 use handlebars::Handlebars;
 
-use crate::models::{pool_handler, Joinable, Model, MySQLPool};
+use crate::models::{pool_handler, Model, MySQLPool};
 
-use crate::models::module_models::Module;
+use crate::models::module_models::{Module, ModuleCategory};
 use crate::models::page_models::PageModuleDTO;
 use crate::models::page_models::{MutPage, Page};
 
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page: (Page, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpError> {
+fn parse_page(page: (Page, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpError> {
     let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
@@ -22,13 +22,20 @@ fn parse_page(page: (Page, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpErro
         page_url: origin_page.page_url.to_string(),
         page_title: origin_page.page_title.to_string(),
         time_created: origin_page.time_created,
-        fields: HashMap::new(),
         page_id: origin_page.id,
+        fields: HashMap::new(),
+        array_fields: HashMap::new(),
     };
 
     for module in page.1 {
+        res.array_fields.insert(module.1.title.clone(), module.0.clone());
+    }
+
+    for module in page.2 {
         res.fields.insert(module.title.clone(), module);
     }
+
+
 
     Ok(res)
 }
