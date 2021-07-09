@@ -1,5 +1,8 @@
 use actix_web::web::Data;
-use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
+use handlebars::{
+    Context, Handlebars, Helper, HelperDef, JsonRender, Output, RenderContext, RenderError,
+    ScopedJson,
+};
 use std::sync::Mutex;
 
 fn get(
@@ -36,9 +39,48 @@ fn get(
     Ok(())
 }
 
+#[derive(Clone, Copy)]
+pub struct ArrayHelper;
+
+impl HelperDef for ArrayHelper {
+    fn call_inner<'reg: 'rc, 'rc>(
+        &self,
+        h: &Helper<'reg, 'rc>,
+        _: &'reg Handlebars<'reg>,
+        ctx: &'rc Context,
+        rc: &mut RenderContext<'reg, 'rc>,
+    ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError> {
+        let module_title = h
+            .param(0)
+            .ok_or(RenderError::new(
+                "No module title provided to helper function.",
+            ))?
+            .render();
+
+        let res: ScopedJson = ctx.data()
+            .get("array_fields")
+            .ok_or(RenderError::new("No fields exist on this page."))?
+            .get(module_title.clone())
+            .ok_or(RenderError::new(&format!(
+                "Field `{}` does not exist on the page.",
+                module_title
+            )))?
+            .clone()
+            .into();
+
+        Ok(Some(res))
+    }
+}
+
+pub static ARRAY_HELPER: ArrayHelper = ArrayHelper;
+
 pub fn register_helpers(handlebars: Data<Mutex<Handlebars<'_>>>) {
     handlebars
         .lock()
         .unwrap()
         .register_helper("get", Box::new(get));
+    handlebars
+        .lock()
+        .unwrap()
+        .register_helper("getarray", Box::new(ARRAY_HELPER));
 }
