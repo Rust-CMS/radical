@@ -65,7 +65,7 @@ async fn main() -> std::io::Result<()> {
 
     hb.lock()
         .unwrap()
-        .register_templates_directory(".html", "./templates")
+        .register_templates_directory(".hbs", "./templates")
         .unwrap();
 
     // Registers all default handlebars functions.
