@@ -4,11 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::module_models::Module;
-use super::Joinable;
 use super::Model;
 use crate::models::module_models::ModuleCategory;
 use crate::schema::module_category;
-use crate::schema::modules;
 use crate::schema::pages;
 
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
@@ -87,7 +85,7 @@ impl Page {
     pub fn read_one_join_on(
         id: String,
         db: &MysqlConnection,
-    ) -> Result<(Self, Vec<(&Vec<Module>, &ModuleCategory)>, Vec<Module>), diesel::result::Error> {
+    ) -> Result<(Self, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>), diesel::result::Error> {
         use crate::schema::pages::dsl::page_url;
 
         let filtered_page = pages::table.filter(page_url.eq(id)).first::<Page>(db)?;
@@ -99,15 +97,14 @@ impl Page {
             .select(module_category::all_columns)
             .load::<ModuleCategory>(db)?;
 
-        let module_array = Module::belonging_to(&categories)
+        let module_array: Vec<(Vec<Module>, ModuleCategory)> = Module::belonging_to(&categories)
             .load::<Module>(db)?
             .grouped_by(&categories)
             .iter()
-            .zip(&categories)
+            .map(|a| a.clone())
+            .zip(categories)
             .collect::<Vec<_>>();
-
-        
-
+            
         Ok((filtered_page, module_array, modules))
     }
 }

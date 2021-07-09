@@ -1,6 +1,6 @@
-use std::sync::Mutex;
 use actix_web::web::Data;
 use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
+use std::sync::Mutex;
 
 fn get(
     h: &Helper,
@@ -19,8 +19,7 @@ fn get(
     // helper that allows a custom error message to show if the value does not exist in the database yet.
     // errors are passed up through `ok_or` returning a RenderError, then passed to the `try` block.
     let field_result: Result<String, RenderError> = try {
-        ctx
-            .data()
+        ctx.data()
             .get("fields")
             .ok_or(RenderError::new("No fields exist on this page."))?
             .get(module_title.clone())

@@ -4,7 +4,7 @@ use std::sync::Mutex;
 use actix_web::{web, HttpResponse};
 use handlebars::Handlebars;
 
-use crate::models::{pool_handler, Joinable, Model, MySQLPool};
+use crate::models::{pool_handler, Model, MySQLPool};
 
 use crate::models::module_models::{Module, ModuleCategory};
 use crate::models::page_models::PageModuleDTO;
@@ -13,7 +13,7 @@ use crate::models::page_models::{MutPage, Page};
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page: (Page, Vec<(&Vec<Module>, &ModuleCategory)>, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpError> {
+fn parse_page(page: (Page, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpError> {
     let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
@@ -28,7 +28,7 @@ fn parse_page(page: (Page, Vec<(&Vec<Module>, &ModuleCategory)>, Vec<Module>)) -
     };
 
     for module in page.1 {
-        res.array_fields.insert(module.1.title, module.0.clone());
+        res.array_fields.insert(module.1.title.clone(), module.0.clone());
     }
 
     for module in page.2 {
