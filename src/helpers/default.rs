@@ -39,6 +39,9 @@ fn get(
     Ok(())
 }
 
+/// For this helper, we need to return ScopedJson.
+/// The #each operator does not accept a string as an argument, and normal helpers are meant to write strings.
+/// With such, we use the handlebars HelperDef object that allows us to return ScopedJson.
 #[derive(Clone, Copy)]
 pub struct ArrayHelper;
 
@@ -48,7 +51,7 @@ impl HelperDef for ArrayHelper {
         h: &Helper<'reg, 'rc>,
         _: &'reg Handlebars<'reg>,
         ctx: &'rc Context,
-        rc: &mut RenderContext<'reg, 'rc>,
+        _: &mut RenderContext<'reg, 'rc>,
     ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError> {
         let module_title = h
             .param(0)
