@@ -20,7 +20,7 @@ pub fn watch(hb: Data<Mutex<handlebars::Handlebars<'_>>>) -> notify::Result<()> 
                 hb.lock().unwrap().clear_templates();
                 hb.lock()
                     .unwrap()
-                    .register_templates_directory(".html", "./templates")
+                    .register_templates_directory(".hbs", "./templates")
                     .unwrap();
             }
             Err(e) => println!("watch error: {:?}", e),
