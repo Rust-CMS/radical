@@ -5,7 +5,9 @@ use std::collections::HashMap;
 
 use super::module_models::Module;
 use super::Model;
+use crate::models::module_models::CategoryDTO;
 use crate::models::module_models::ModuleCategory;
+use crate::models::module_models::ModuleDTO;
 use crate::schema::module_category;
 use crate::schema::pages;
 
@@ -40,6 +42,20 @@ pub struct PageModuleDTO {
     /// For the usefulness of this, see the `get` function on the default helpers.
     pub fields: HashMap<String, Module>,
     pub array_fields: HashMap<String, Vec<Module>>,
+}
+
+impl From<Page> for PageModuleDTO {
+    fn from(origin_page: Page) -> Self {
+        Self {
+            page_name: origin_page.page_name.to_string(),
+            page_url: origin_page.page_url.to_string(),
+            page_title: origin_page.page_title.to_string(),
+            time_created: origin_page.time_created,
+            page_id: origin_page.id,
+            fields: HashMap::new(),
+            array_fields: HashMap::new(),
+        }
+    }
 }
 
 impl Model<Page, MutPage, i32> for Page {
@@ -85,7 +101,7 @@ impl Page {
     pub fn read_one_join_on(
         id: String,
         db: &MysqlConnection,
-    ) -> Result<(Self, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>), diesel::result::Error> {
+    ) -> Result<(Self, ModuleDTO), diesel::result::Error> {
         use crate::schema::pages::dsl::page_url;
 
         let filtered_page = pages::table.filter(page_url.eq(id)).first::<Page>(db)?;
@@ -104,7 +120,21 @@ impl Page {
             .map(|a| a.clone())
             .zip(categories)
             .collect::<Vec<_>>();
-            
-        Ok((filtered_page, module_array, modules))
+
+        let category_dtos: Vec<CategoryDTO> = module_array
+            .iter()
+            .map(|a| CategoryDTO {
+                id: a.1.id,
+                title: a.1.title.clone(),
+                modules: a.0.clone(),
+            })
+            .collect::<Vec<_>>();
+
+        let module_dto: ModuleDTO = ModuleDTO {
+            modules: modules,
+            categories: Some(category_dtos),
+        };
+
+        Ok((filtered_page, module_dto))
     }
 }
