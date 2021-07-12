@@ -6,17 +6,17 @@ use handlebars::Handlebars;
 use crate::models::{pool_handler, Model, MySQLPool};
 
 use crate::models::module_models::{ModuleDTO};
-use crate::models::page_models::PageModuleDTO;
+use crate::models::page_models::PageModuleDisplayDTO;
 use crate::models::page_models::{MutPage, Page};
 
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page: (Page, ModuleDTO)) -> Result<PageModuleDTO, CustomHttpError> {
+fn parse_page(page: (Page, ModuleDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
     let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
-    let mut res: PageModuleDTO = origin_page.into();
+    let mut res: PageModuleDisplayDTO = origin_page.into();
 
     match page.1.categories {
         Some(modules) => {

@@ -42,14 +42,14 @@ pub struct ModuleCategory {
     pub title: String
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoryDTO {
     pub id: i32,
     pub title: String,
     pub modules: Vec<Module>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ModuleDTO {
     pub modules: Vec<Module>,
     pub categories: Option<Vec<CategoryDTO>>

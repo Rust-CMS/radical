@@ -31,8 +31,9 @@ pub struct MutPage {
     pub page_title: String,
 }
 
+/// Used in the displaying of pages.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PageModuleDTO {
+pub struct PageModuleDisplayDTO {
     pub page_id: i32,
     pub page_name: String,
     pub page_url: String,
@@ -44,7 +45,7 @@ pub struct PageModuleDTO {
     pub array_fields: HashMap<String, Vec<Module>>,
 }
 
-impl From<Page> for PageModuleDTO {
+impl From<Page> for PageModuleDisplayDTO {
     fn from(origin_page: Page) -> Self {
         Self {
             page_name: origin_page.page_name.to_string(),
@@ -54,6 +55,30 @@ impl From<Page> for PageModuleDTO {
             page_id: origin_page.id,
             fields: HashMap::new(),
             array_fields: HashMap::new(),
+        }
+    }
+}
+
+/// Used in the JSON response of pages.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PageModuleDTO {
+    pub page_id: i32,
+    pub page_name: String,
+    pub page_url: String,
+    pub page_title: String,
+    pub time_created: NaiveDateTime,
+    pub fields: ModuleDTO
+}
+
+impl From<Page> for PageModuleDTO {
+    fn from(origin_page: Page) -> Self {
+        Self {
+            page_name: origin_page.page_name.to_string(),
+            page_url: origin_page.page_url.to_string(),
+            page_title: origin_page.page_title.to_string(),
+            time_created: origin_page.time_created,
+            page_id: origin_page.id,
+            fields: ModuleDTO::default()
         }
     }
 }
@@ -101,7 +126,7 @@ impl Page {
     pub fn read_one_join_on(
         _id: i32,
         db: &MysqlConnection,
-    ) -> Result<(Self, ModuleDTO), diesel::result::Error> {
+    ) -> Result<PageModuleDTO, diesel::result::Error> {
         use crate::schema::pages::dsl::id;
         use crate::schema::modules::dsl::category;
 
@@ -137,7 +162,11 @@ impl Page {
             categories: Some(category_dtos),
         };
 
-        Ok((filtered_page, module_dto))
+        let mut page_dto: PageModuleDTO = filtered_page.into();
+
+        page_dto.fields = module_dto;
+
+        Ok(page_dto)
     }
 
 
