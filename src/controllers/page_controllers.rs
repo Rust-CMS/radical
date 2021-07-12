@@ -41,7 +41,7 @@ pub async fn display_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool);
+    let page_tuple = Page::read_one_join_on_url(path.to_string(), &mysql_pool);
 
     if let Err(_) = page_tuple {
         let s = hb.lock().unwrap().render("404", &String::from("")).unwrap();
@@ -97,11 +97,9 @@ pub async fn get_page_join_modules(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page_vec = Page::read_one_join_on(id.to_string(), &mysql_pool)?;
+    let page_vec = Page::read_one_join_on(*id, &mysql_pool)?;
 
-    let pagemodules = parse_page(page_vec).or(Err(CustomHttpError::NotFound))?;
-
-    HttpResponseBuilder::new(200, &pagemodules)
+    HttpResponseBuilder::new(200, &page_vec)
 }
 
 pub async fn update_page(

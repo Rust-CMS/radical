@@ -99,6 +99,50 @@ impl Model<Page, MutPage, i32> for Page {
 
 impl Page {
     pub fn read_one_join_on(
+        _id: i32,
+        db: &MysqlConnection,
+    ) -> Result<(Self, ModuleDTO), diesel::result::Error> {
+        use crate::schema::pages::dsl::id;
+        use crate::schema::modules::dsl::category;
+
+        let filtered_page = pages::table.filter(id.eq(_id)).first::<Page>(db)?;
+
+        let modules_no_category = Module::belonging_to(&filtered_page).filter(category.is_null()).load::<Module>(db)?;
+
+        let categories = Module::belonging_to(&filtered_page)
+            .inner_join(module_category::table)
+            .select(module_category::all_columns)
+            .distinct()
+            .load::<ModuleCategory>(db)?;
+
+        let module_array: Vec<(Vec<Module>, ModuleCategory)> = Module::belonging_to(&categories)
+            .load::<Module>(db)?
+            .grouped_by(&categories)
+            .iter()
+            .map(|a| a.clone())
+            .zip(categories)
+            .collect::<Vec<_>>();
+
+        let category_dtos: Vec<CategoryDTO> = module_array
+            .iter()
+            .map(|a| CategoryDTO {
+                id: a.1.id,
+                title: a.1.title.clone(),
+                modules: a.0.clone(),
+            })
+            .collect::<Vec<_>>();
+
+        let module_dto: ModuleDTO = ModuleDTO {
+            modules: modules_no_category,
+            categories: Some(category_dtos),
+        };
+
+        Ok((filtered_page, module_dto))
+    }
+
+
+    /// This is used for displaying a page, rather than getting a page's modules/array modules.
+    pub fn read_one_join_on_url(
         id: String,
         db: &MysqlConnection,
     ) -> Result<(Self, ModuleDTO), diesel::result::Error> {
