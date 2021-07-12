@@ -1,9 +1,6 @@
 use actix_web::web::Data;
-use handlebars::{
-    Context, Handlebars, Helper, HelperDef, JsonRender, Output, RenderContext, RenderError,
-    ScopedJson,
-};
-use std::sync::Mutex;
+use handlebars::{Context, Handlebars, Helper, HelperDef, JsonRender, Output, RenderContext, RenderError, ScopedJson, to_json};
+use std::{sync::Mutex};
 
 fn get(
     h: &Helper,
@@ -60,7 +57,9 @@ impl HelperDef for ArrayHelper {
             ))?
             .render();
 
-        let res: ScopedJson = ctx.data()
+        
+        let res: Result<ScopedJson, RenderError> = try {
+            ctx.data()
             .get("array_fields")
             .ok_or(RenderError::new("No fields exist on this page."))?
             .get(module_title.clone())
@@ -69,9 +68,10 @@ impl HelperDef for ArrayHelper {
                 module_title
             )))?
             .clone()
-            .into();
-
-        Ok(Some(res))
+            .into()
+        };
+        let a: Vec<String> = Vec::new();
+        Ok(Some(res.unwrap_or(to_json(a).into())))
     }
 }
 

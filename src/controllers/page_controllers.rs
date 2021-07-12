@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::Mutex;
 
 use actix_web::{web, HttpResponse};
@@ -6,36 +5,31 @@ use handlebars::Handlebars;
 
 use crate::models::{pool_handler, Model, MySQLPool};
 
-use crate::models::module_models::{Module, ModuleCategory};
-use crate::models::page_models::PageModuleDTO;
+use crate::models::module_models::{ModuleDTO};
+use crate::models::page_models::PageModuleDisplayDTO;
 use crate::models::page_models::{MutPage, Page};
 
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page: (Page, Vec<(Vec<Module>, ModuleCategory)>, Vec<Module>)) -> Result<PageModuleDTO, CustomHttpError> {
+fn parse_page(page: (Page, ModuleDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
     let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
-    let mut res = PageModuleDTO {
-        page_name: origin_page.page_name.to_string(),
-        page_url: origin_page.page_url.to_string(),
-        page_title: origin_page.page_title.to_string(),
-        time_created: origin_page.time_created,
-        page_id: origin_page.id,
-        fields: HashMap::new(),
-        array_fields: HashMap::new(),
+    let mut res: PageModuleDisplayDTO = origin_page.into();
+
+    match page.1.categories {
+        Some(modules) => {
+            for module in modules {
+                res.array_fields.insert(module.title, module.modules);
+            }
+        },
+        None => {}
     };
 
-    for module in page.1 {
-        res.array_fields.insert(module.1.title.clone(), module.0.clone());
-    }
-
-    for module in page.2 {
+    for module in page.1.modules {
         res.fields.insert(module.title.clone(), module);
     }
-
-
 
     Ok(res)
 }
@@ -47,7 +41,7 @@ pub async fn display_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let path = req.path();
-    let page_tuple = Page::read_one_join_on(path.to_string(), &mysql_pool);
+    let page_tuple = Page::read_one_join_on_url(path.to_string(), &mysql_pool);
 
     if let Err(_) = page_tuple {
         let s = hb.lock().unwrap().render("404", &String::from("")).unwrap();
@@ -103,11 +97,9 @@ pub async fn get_page_join_modules(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page_vec = Page::read_one_join_on(id.to_string(), &mysql_pool)?;
+    let page_vec = Page::read_one_join_on(*id, &mysql_pool)?;
 
-    let pagemodules = parse_page(page_vec).or(Err(CustomHttpError::NotFound))?;
-
-    HttpResponseBuilder::new(200, &pagemodules)
+    HttpResponseBuilder::new(200, &page_vec)
 }
 
 pub async fn update_page(

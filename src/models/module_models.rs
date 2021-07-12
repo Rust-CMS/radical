@@ -42,7 +42,20 @@ pub struct ModuleCategory {
     pub title: String
 }
 
-impl Model<Module, MutModule, i32> for Module {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CategoryDTO {
+    pub id: i32,
+    pub title: String,
+    pub modules: Vec<Module>
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct ModuleDTO {
+    pub modules: Vec<Module>,
+    pub categories: Option<Vec<CategoryDTO>>
+}
+
+impl Model<Self, MutModule, i32> for Module {
     fn create(
         new_module: &MutModule,
         db: &MysqlConnection,
@@ -52,15 +65,15 @@ impl Model<Module, MutModule, i32> for Module {
             .execute(db)?)
     }
 
-    fn read_one(mod_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
+    fn read_one(mod_id: i32, db: &MysqlConnection) -> Result<Module, diesel::result::Error> {
         use modules::dsl::module_id;
 
-        Ok(modules::table
-            .filter(module_id.eq(mod_id))
-            .first::<Self>(db)?)
+        let module = modules::table.filter(module_id.eq(mod_id)).first::<Self>(db)?;
+
+        Ok(module)
     }
 
-    fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Module>, diesel::result::Error> {
         use modules::dsl::category;
         Ok(modules::table
             .filter(category.is_null())
