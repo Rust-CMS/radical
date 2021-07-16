@@ -29,6 +29,7 @@ use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
 use crate::controllers::config_controllers::LocalConfig;
+use crate::routers::category_routers::CategoryRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -95,7 +96,8 @@ async fn main() -> std::io::Result<()> {
                     .service(PageRouter::new())
                     .service(ModuleRouter::new())
                     .service(LocalConfigRouter::new())
-                    .service(DatabaseConfigRouter::new()),
+                    .service(DatabaseConfigRouter::new())
+                    .service(CategoryRouter::new()),
             )
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
             .default_service(web::get().to(controllers::page_controllers::display_page))

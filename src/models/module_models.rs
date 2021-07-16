@@ -42,6 +42,61 @@ pub struct ModuleCategory {
     pub title: String
 }
 
+#[derive(
+    Debug, Serialize, Deserialize, AsChangeset, Insertable, PartialEq, Clone, Eq, Hash,
+)]
+#[table_name = "module_category"]
+pub struct MutCategory {
+    pub title: String
+}
+
+impl ModuleCategory {
+    pub fn join(_id: i32, db: &MysqlConnection) -> Result<Vec<Module>, diesel::result::Error> {
+        use module_category::dsl::id;
+        let categories = module_category::table.filter(id.eq(_id)).first::<Self>(db)?;
+
+        Module::belonging_to(&categories).load::<Module>(db)
+    }
+}
+
+impl Model<Self, MutCategory, i32> for ModuleCategory {
+    fn create(new: &MutCategory, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        Ok(diesel::insert_or_ignore_into(module_category::table)
+            .values(new)
+            .execute(db)?)
+    }
+
+    fn read_one(_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
+        use module_category::dsl::id;
+
+        let module = module_category::table.filter(id.eq(_id)).first::<Self>(db)?;
+
+        Ok(module)
+    }
+
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
+        unimplemented!()
+    }
+
+    fn update(
+        _id: i32,
+        new: &MutCategory,
+        db: &MysqlConnection,
+    ) -> Result<usize, diesel::result::Error> {
+        use crate::schema::module_category::dsl::id;
+
+        Ok(diesel::update(module_category::table.filter(id.eq(_id)))
+            .set(new)
+            .execute(db)?)
+    }
+
+    fn delete(_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use crate::schema::module_category::dsl::id;
+
+        Ok(diesel::delete(module_category::table.filter(id.eq(_id))).execute(db)?)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoryDTO {
     pub id: i32,
