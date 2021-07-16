@@ -6,6 +6,10 @@
 
 RustCMS is a barebones backend CMS that works much like [Processwire](https://processwire.com/) works. This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
 
+## Check It Out Now
+
+If you have docker, all you need to do is run [this](https://github.com/Rust-CMS/tooling) docker-compose.
+
 ## Project State
 
 Version: Pre-alpha
@@ -14,7 +18,7 @@ Version: Pre-alpha
 | ----------- | ----------- |
 | Backend | ✅ |
 | Frontend | ✅ |
-| Production | ❌ |
+| Production | - |
 
 This project has a functioning frontend, but it is not fully featured yet.
 
@@ -25,10 +29,6 @@ Whenever you run the tests, it is best to have a clean database.
 You **MUST** run it using this command (since mocking for Diesel isn't mature yet):
 
 `cargo test -- --test-thread=1`
-
-## Production Environment Setup
-
-It is best if you use the docker-compose tooling. Check [here](https://github.com/Rust-CMS/tooling).
 
 ## Dev Environment Setup
 
