@@ -15,7 +15,7 @@ use crate::schema::modules;
 #[table_name = "modules"]
 pub struct Module {
     pub id: i32,
-    pub guid: String,
+    pub uuid: String,
     pub module_type_id: i32,
     pub title: String,
     pub page_id: i32,
@@ -40,14 +40,14 @@ pub struct MutModule {
 #[table_name = "module_category"]
 pub struct ModuleCategory {
     pub id: i32,
-    pub guid: String,
+    pub uuid: String,
     pub title: String
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoryDTO {
     pub id: i32,
-    pub guid: String,
+    pub uuid: String,
     pub title: String,
     pub modules: Vec<Module>
 }

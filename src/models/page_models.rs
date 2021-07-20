@@ -15,7 +15,7 @@ use crate::schema::pages;
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
     pub id: i32,
-    pub guid: String,
+    pub uuid: String,
     /// This should match the name of the HTML file.
     pub page_name: String,
     /// This should be the path which the program matches on.
@@ -38,7 +38,7 @@ pub struct MutPage {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleDisplayDTO {
     pub page_id: i32,
-    pub guid: String,
+    pub uuid: String,
     pub page_name: String,
     pub page_url: String,
     pub page_title: String,
@@ -53,7 +53,7 @@ impl From<Page> for PageModuleDisplayDTO {
     fn from(origin_page: Page) -> Self {
         Self {
             page_name: origin_page.page_name.to_string(),
-            guid: origin_page.guid.to_string(),
+            uuid: origin_page.uuid.to_string(),
             page_url: origin_page.page_url.to_string(),
             page_title: origin_page.page_title.to_string(),
             time_created: origin_page.time_created,
@@ -68,7 +68,7 @@ impl From<Page> for PageModuleDisplayDTO {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleDTO {
     pub page_id: i32,
-    pub guid: String,
+    pub uuid: String,
     pub page_name: String,
     pub page_url: String,
     pub page_title: String,
@@ -80,7 +80,7 @@ impl From<Page> for PageModuleDTO {
     fn from(origin_page: Page) -> Self {
         Self {
             page_name: origin_page.page_name.to_string(),
-            guid: origin_page.guid,
+            uuid: origin_page.uuid,
             page_url: origin_page.page_url.to_string(),
             page_title: origin_page.page_title.to_string(),
             time_created: origin_page.time_created,
@@ -158,7 +158,7 @@ impl Page {
                 id: a.1.id,
                 title: a.1.title.clone(),
                 modules: a.0.clone(),
-                guid: a.1.guid.clone(),
+                uuid: a.1.uuid.clone(),
             })
             .collect::<Vec<_>>();
 
@@ -203,7 +203,7 @@ impl Page {
             .iter()
             .map(|a| CategoryDTO {
                 id: a.1.id,
-                guid: a.1.guid.clone(),
+                uuid: a.1.uuid.clone(),
                 title: a.1.title.clone(),
                 modules: a.0.clone(),
             })

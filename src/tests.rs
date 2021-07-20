@@ -42,7 +42,7 @@ async fn create_test_page() {
         page_name: String::from("Hello world!"),
         page_url: String::from("/"),
         page_title: String::from("Hello world!"),
-    guid: Some(Uuid::new_v4().to_string()),
+    uuid: Some(Uuid::new_v4().to_string()),
     };
     page_controllers::create_page(web::Json(new_page), db)
         .await
@@ -58,7 +58,7 @@ async fn create_test_module() {
         content: String::from("Hello world!"),
         title: String::from("test"),
         page_id: -1,
-        guid: Some(Uuid::new_v4().to_string()),
+        uuid: Some(Uuid::new_v4().to_string()),
     };
 
     module_controllers::create_module(web::Json(new_module), db)
@@ -87,7 +87,7 @@ async fn create_page() {
         page_name: String::from("create_page_ut"),
         page_url: String::from("/create_page_ut"),
         page_title: String::from("create_page_ut"),
-        guid: Some(Uuid::new_v4().to_string()),
+        uuid: Some(Uuid::new_v4().to_string()),
     };
     let resp = page_controllers::create_page(web::Json(new_page), db)
         .await
@@ -147,7 +147,7 @@ async fn update_page() {
         page_name: String::from("Hello world!"),
         page_url: String::from("/"),
         page_title: String::from("Hello world!"),
-        guid: Some(Uuid::new_v4().to_string()),
+        uuid: Some(Uuid::new_v4().to_string()),
     };
 
     let resp = page_controllers::update_page(web::Json(new_page), web::Path(-1), db)
@@ -170,7 +170,7 @@ async fn create_modules() {
         content: String::from("Hello world!"),
         title: String::from("title"),
         page_id: -1,
-        guid: Some(Uuid::new_v4().to_string()),
+        uuid: Some(Uuid::new_v4().to_string()),
     };
     let resp = module_controllers::create_module(web::Json(new_module), db)
         .await
@@ -221,7 +221,7 @@ async fn update_modules() {
         content: String::from("Hello world!"),
         title: String::from("title"),
         page_id: -1,
-        guid: Some(Uuid::new_v4().to_string()),
+        uuid: Some(Uuid::new_v4().to_string()),
     };
 
     let resp = module_controllers::update_module(web::Json(new_module), web::Path(-1), db)
