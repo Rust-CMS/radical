@@ -5,14 +5,13 @@ use handlebars::Handlebars;
 
 use crate::models::{pool_handler, Model, MySQLPool};
 
-use crate::models::module_models::{ModuleDTO};
-use crate::models::page_models::PageModuleDisplayDTO;
-use crate::models::page_models::{MutPage, Page};
+use crate::models::module_models::{FieldsDTO};
+use crate::models::page_models::{PageModuleDisplayDTO,MutPage, Page, PageDTO};
 
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
-fn parse_page(page: (Page, ModuleDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
+fn parse_page(page: (Page, FieldsDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
     let origin_page = page.0;
 
     // cast the origin page that is always standard into a new object that has the modules as a vec of children.
@@ -72,7 +71,7 @@ pub async fn create_page(
 
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
-    let pages: Vec<Page> = Page::read_all(&mysql_pool)?;
+    let pages: Vec<PageDTO> = Page::read_all(&mysql_pool)?;
 
     HttpResponseBuilder::new(200, &pages)
 }
@@ -83,7 +82,7 @@ pub async fn get_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page: Page = Page::read_one(id.clone(), &mysql_pool)?;
+    let page: PageDTO = Page::read_one(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &page)
 }

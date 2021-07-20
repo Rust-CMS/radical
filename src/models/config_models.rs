@@ -18,7 +18,7 @@ pub struct MutConfig {
     config_val: String,
 }
 
-impl Model<Config, MutConfig, String> for Config {
+impl Model<Config, MutConfig, String, > for Config {
     fn create(
         new: &MutConfig,
         db: &diesel::MysqlConnection,
