@@ -3,31 +3,26 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./assets/main.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <title>{{ page_title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="./assets/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <title>{{page_title}}</title>
 </head>
 
 <body>
-    <h1>{{ page_title }}</h1>
-    <hr>
-    <h1>{{get "title"}}</h1>
-    <small>{{get "small"}}</small>
+    <main>
+        <h1>{{get "title"}}</h1>
 
-    <br>
-
-    {{#each (getarray "colors") as |t| }}
-        <div class="card d-flex flex-column p-5 m-2 w-25">
-            <div class="card-body">
-                <h5 class="card-title">Title: {{t.title}}</h5>
-                <p class="card-text">Name: {{t.content}}</p>
-                <small>{{@index}}</small>
-            </div>
-        </div>
-        {{else}}
-        <p>WRONG</p>
-    {{/each}}
+        {{#each (getarray "colors") as | color |}}
+            {{color.content}}
+        {{/each}}
+    </main>
 </body>
 
 </html>
