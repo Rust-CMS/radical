@@ -11,16 +11,20 @@ pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
 pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;
 
 /// CRUD implementation.
-pub trait Model<TQueryable, TMutable, TPrimary> {
+pub trait Model<TQueryable, TMutable, TPrimary, TDto = TQueryable> {
     fn create(new: &TMutable, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
-    fn read_one(id: TPrimary, db: &MysqlConnection) -> Result<TQueryable, diesel::result::Error>;
-    fn read_all(db: &MysqlConnection) -> Result<Vec<TQueryable>, diesel::result::Error>;
+    fn read_one(id: TPrimary, db: &MysqlConnection) -> Result<TDto, diesel::result::Error>;
+    fn read_all(db: &MysqlConnection) -> Result<Vec<TDto>, diesel::result::Error>;
     fn update(
         id: TPrimary,
         new: &TMutable,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error>;
     fn delete(id: TPrimary, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
+}
+
+pub trait DTO<TColumns> {
+    fn columns() -> TColumns;
 }
 
 /// Trait that enforces a  Model to be joinable if that is desired.

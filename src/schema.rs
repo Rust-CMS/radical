@@ -1,6 +1,7 @@
 table! {
     module_category (id) {
         id -> Integer,
+        uuid -> Varchar,
         title -> Varchar,
     }
 }
@@ -8,14 +9,16 @@ table! {
 table! {
     module_types (module_type_id) {
         module_type_id -> Integer,
+        uuid -> Varchar,
         title -> Varchar,
         module_desc -> Varchar,
     }
 }
 
 table! {
-    modules (module_id) {
-        module_id -> Integer,
+    modules (id) {
+        id -> Integer,
+        uuid -> Varchar,
         module_type_id -> Integer,
         title -> Varchar,
         page_id -> Integer,
@@ -27,6 +30,7 @@ table! {
 table! {
     pages (id) {
         id -> Integer,
+        uuid -> Varchar,
         page_name -> Varchar,
         page_url -> Varchar,
         page_title -> Varchar,
