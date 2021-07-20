@@ -12,7 +12,7 @@ If you have docker, all you need to do is run [this](https://github.com/Rust-CMS
 
 ## Project State
 
-Version: Pre-alpha
+Version: v0.1.0
 
 |             | Ready |
 | ----------- | ----------- |
