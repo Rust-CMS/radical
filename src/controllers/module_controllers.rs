@@ -1,7 +1,7 @@
 use actix_web::{web, HttpResponse};
 
 use crate::models::{Model, MySQLPool, pool_handler};
-use crate::models::module_models::{Module, MutModule};
+use crate::models::module_models::{Module, ModuleCategory, MutModule};
 
 use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
@@ -56,4 +56,15 @@ pub async fn delete_module(
     Module::delete(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
+}
+
+pub async fn get_module_category(
+    id: web::Path<String>,
+    pool: web::Data<MySQLPool>
+) -> Result<HttpResponse, CustomHttpError> {
+    let mysql_pool = pool_handler(pool)?;
+
+    let modules = ModuleCategory::join(id.clone(), &mysql_pool)?;
+
+    HttpResponseBuilder::new(200, &modules)
 }
