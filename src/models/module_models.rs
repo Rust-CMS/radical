@@ -84,7 +84,6 @@ pub struct ModuleDTO {
     pub uuid: String,
     pub title: String,
     pub content: String,
-    pub category: Option<i32>,
 }
 
 impl From<Module> for ModuleDTO {
@@ -93,7 +92,6 @@ impl From<Module> for ModuleDTO {
             uuid: module.uuid,
             title: module.title,
             content: module.content,
-            category: None,
         }
     }
 }
