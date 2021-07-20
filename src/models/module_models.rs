@@ -19,6 +19,7 @@ pub struct Module {
     pub module_type_id: i32,
     pub title: String,
     pub page_id: i32,
+    pub page_uuid: String,
     pub content: String,
     pub category: Option<i32>,
 }
@@ -74,6 +75,7 @@ pub struct ModuleDTO {
     pub uuid: String,
     pub title: String,
     pub content: String,
+    pub page_uuid: String
 }
 
 impl From<Module> for ModuleDTO {
@@ -82,15 +84,16 @@ impl From<Module> for ModuleDTO {
             uuid: module.uuid,
             title: module.title,
             content: module.content,
+            page_uuid: module.page_uuid
         }
     }
 }
 
-type ModuleDTOColumns = (modules::columns::uuid, modules::columns::title, modules::columns::content);
+type ModuleDTOColumns = (modules::columns::uuid, modules::columns::title, modules::columns::content, modules::columns::page_uuid);
 impl DTO<ModuleDTOColumns> for ModuleDTO {
     fn columns() -> ModuleDTOColumns {
         use modules::columns::*;
-        (uuid, title, content)
+        (uuid, title, content, page_uuid)
     }
 }
 

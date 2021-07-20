@@ -22,6 +22,7 @@ table! {
         module_type_id -> Integer,
         title -> Varchar,
         page_id -> Integer,
+        page_uuid -> Varchar,
         content -> Text,
         category -> Nullable<Integer>,
     }

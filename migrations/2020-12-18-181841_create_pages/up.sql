@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS modules (
     module_type_id int NOT NULL,
     title varchar(100) NOT NULL,
     page_id int NOT NULL,
+    page_uuid VARCHAR(100) NOT NULL,
     content TEXT NOT NULL,
     category int,
     FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
@@ -43,11 +44,11 @@ CREATE TABLE IF NOT EXISTS modules (
     FOREIGN KEY (category) REFERENCES module_category(id) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, content) VALUES (1, (SELECT UUID()), "title", 1, "This is the `title` module!!");
-INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, content) VALUES (1,(SELECT UUID()), "small", 1, "This is the `small` module!");
-INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, content, category) VALUES (1,(SELECT UUID()), "color1", 1, "red", 1);
-INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, content, category) VALUES (1,(SELECT UUID()), "color2", 1, "blue", 1);
-INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, content, category) VALUES (1,(SELECT UUID()), "color3", 1, "green", 1);
+INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, page_uuid, content) VALUES (1, (SELECT UUID()), "title", 1, (SELECT uuid FROM pages WHERE id = 1), "This is the `title` module!!");
+INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, page_uuid, content) VALUES (1,(SELECT UUID()), "small", 1, (SELECT uuid FROM pages WHERE id = 1), "This is the `small` module!");
+INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, page_uuid, content, category) VALUES (1, (SELECT UUID()), "color1", 1, (SELECT uuid FROM pages WHERE id = 1), "red", 1);
+INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, page_uuid, content, category) VALUES (1, (SELECT UUID()), "color2", 1, (SELECT uuid FROM pages WHERE id = 1), "blue", 1);
+INSERT IGNORE INTO modules (module_type_id, uuid, title, page_id, page_uuid, content, category) VALUES (1, (SELECT UUID()), "color3", 1, (SELECT uuid FROM pages WHERE id = 1), "green", 1);
 
 CREATE TABLE IF NOT EXISTS web_config (
     config_key VARCHAR(100) PRIMARY KEY NOT NULL,
