@@ -2,6 +2,7 @@ use std::sync::Mutex;
 
 use actix_web::{web, HttpResponse};
 use handlebars::Handlebars;
+use uuid::Uuid;
 
 use crate::models::{pool_handler, Model, MySQLPool};
 
@@ -59,14 +60,17 @@ pub async fn display_page(
 }
 
 pub async fn create_page(
-    new_page: web::Json<MutPage>,
+    new: web::Json<MutPage>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::create(&new_page, &mysql_pool)?;
+    let mut uuid_new = new.clone();
+    uuid_new.uuid = Some(Uuid::new_v4().to_string());
 
-    HttpResponseBuilder::new(201, &*new_page)
+    Page::create(&uuid_new, &mysql_pool)?;
+
+    HttpResponseBuilder::new(201, &uuid_new)
 }
 
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {

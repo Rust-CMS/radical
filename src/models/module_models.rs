@@ -24,7 +24,7 @@ pub struct Module {
     pub category: Option<i32>,
 }
 
-#[derive(Insertable, AsChangeset, Deserialize, Serialize)]
+#[derive(Insertable, AsChangeset, Deserialize, Serialize, Clone)]
 #[table_name = "modules"]
 pub struct MutModule {
     pub uuid: Option<String>,
@@ -110,7 +110,8 @@ pub struct ModuleCategory {
 )]
 #[table_name = "module_category"]
 pub struct MutCategory {
-    pub title: String
+    pub title: String,
+    pub uuid: Option<String>
 }
 
 impl ModuleCategory {

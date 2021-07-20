@@ -25,7 +25,7 @@ pub struct Page {
     pub time_created: NaiveDateTime,
 }
 
-#[derive(Insertable, AsChangeset, Deserialize, Serialize)]
+#[derive(Insertable, AsChangeset, Deserialize, Serialize, Clone)]
 #[table_name = "pages"]
 pub struct MutPage {
     pub id: Option<i32>,
