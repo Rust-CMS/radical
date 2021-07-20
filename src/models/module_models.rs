@@ -27,11 +27,9 @@ pub struct Module {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize)]
 #[table_name = "modules"]
 pub struct MutModule {
-    pub id: Option<i32>,
     pub uuid: Option<String>,
-    pub module_type_id: i32,
     pub title: String,
-    pub page_id: i32,
+    pub page_uuid: String,
     pub content: String,
 }
 
