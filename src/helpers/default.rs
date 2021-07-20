@@ -1,6 +1,9 @@
 use actix_web::web::Data;
-use handlebars::{Context, Handlebars, Helper, HelperDef, JsonRender, Output, RenderContext, RenderError, ScopedJson, to_json};
-use std::{sync::Mutex};
+use handlebars::{
+    to_json, Context, Handlebars, Helper, HelperDef, JsonRender, Output, RenderContext,
+    RenderError, ScopedJson,
+};
+use std::sync::Mutex;
 
 fn get(
     h: &Helper,
@@ -18,8 +21,9 @@ fn get(
 
     // helper that allows a custom error message to show if the value does not exist in the database yet.
     // errors are passed up through `ok_or` returning a RenderError, then passed to the `try` block.
-    let field_result: Result<String, RenderError> = try {
-        ctx.data()
+    let field_result: Result<String, RenderError> = {
+        let values = ctx
+            .data()
             .get("fields")
             .ok_or(RenderError::new("No fields exist on this page."))?
             .get(module_title.clone())
@@ -29,7 +33,9 @@ fn get(
             )))?
             .get("content")
             .unwrap()
-            .render()
+            .render();
+
+        Ok(values)
     };
 
     out.write(&field_result.unwrap_or_else(|e| e.desc))?;
@@ -57,18 +63,20 @@ impl HelperDef for ArrayHelper {
             ))?
             .render();
 
-        
-        let res: Result<ScopedJson, RenderError> = try {
-            ctx.data()
-            .get("array_fields")
-            .ok_or(RenderError::new("No fields exist on this page."))?
-            .get(module_title.clone())
-            .ok_or(RenderError::new(&format!(
-                "Field `{}` does not exist on the page.",
-                module_title
-            )))?
-            .clone()
-            .into()
+        let res: Result<ScopedJson, RenderError> = {
+            let values = ctx
+                .data()
+                .get("array_fields")
+                .ok_or(RenderError::new("No fields exist on this page."))?
+                .get(module_title.clone())
+                .ok_or(RenderError::new(&format!(
+                    "Field `{}` does not exist on the page.",
+                    module_title
+                )))?
+                .clone()
+                .into();
+
+            Ok(values)
         };
         let a: Vec<String> = Vec::new();
         Ok(Some(res.unwrap_or(to_json(a).into())))

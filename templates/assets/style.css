@@ -1,0 +1,20 @@
+nav {
+    font-family: montserrat;
+}
+
+.hero {
+    background-image: url("./assets/hero.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 70vh;
+    width: 100%;
+    position: relative;
+}
+
+.credit {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: white;
+}

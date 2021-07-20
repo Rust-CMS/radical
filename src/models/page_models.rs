@@ -9,11 +9,13 @@ use crate::models::module_models::CategoryDTO;
 use crate::models::module_models::ModuleCategory;
 use crate::models::module_models::ModuleDTO;
 use crate::schema::module_category;
+use crate::schema::modules;
 use crate::schema::pages;
 
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
 pub struct Page {
     pub id: i32,
+    pub guid: String,
     /// This should match the name of the HTML file.
     pub page_name: String,
     /// This should be the path which the program matches on.
@@ -26,6 +28,7 @@ pub struct Page {
 #[table_name = "pages"]
 pub struct MutPage {
     pub id: Option<i32>,
+    pub uuid: Option<String>,
     pub page_name: String,
     pub page_url: String,
     pub page_title: String,
@@ -35,6 +38,7 @@ pub struct MutPage {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleDisplayDTO {
     pub page_id: i32,
+    pub guid: String,
     pub page_name: String,
     pub page_url: String,
     pub page_title: String,
@@ -49,6 +53,7 @@ impl From<Page> for PageModuleDisplayDTO {
     fn from(origin_page: Page) -> Self {
         Self {
             page_name: origin_page.page_name.to_string(),
+            guid: origin_page.guid.to_string(),
             page_url: origin_page.page_url.to_string(),
             page_title: origin_page.page_title.to_string(),
             time_created: origin_page.time_created,
@@ -63,6 +68,7 @@ impl From<Page> for PageModuleDisplayDTO {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PageModuleDTO {
     pub page_id: i32,
+    pub guid: String,
     pub page_name: String,
     pub page_url: String,
     pub page_title: String,
@@ -74,27 +80,27 @@ impl From<Page> for PageModuleDTO {
     fn from(origin_page: Page) -> Self {
         Self {
             page_name: origin_page.page_name.to_string(),
+            guid: origin_page.guid,
             page_url: origin_page.page_url.to_string(),
             page_title: origin_page.page_title.to_string(),
             time_created: origin_page.time_created,
             page_id: origin_page.id,
-            fields: ModuleDTO::default()
+            fields: ModuleDTO::default(),
         }
     }
 }
 
-impl Model<Page, MutPage, i32> for Page {
+impl Model<Page, MutPage, String> for Page {
     fn create(new_page: &MutPage, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         Ok(diesel::insert_or_ignore_into(pages::table)
             .values(new_page)
             .execute(db)?)
     }
 
-    fn read_one(_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
-        use crate::schema::pages::dsl::id;
-        use crate::schema::pages::dsl::pages;
+    fn read_one(_id: String, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
+        use pages::dsl::uuid;
 
-        pages.filter(id.eq(_id)).first::<Self>(db)
+        pages::table.filter(uuid.eq(_id)).first::<Self>(db)
     }
 
     fn read_all(db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
@@ -102,35 +108,33 @@ impl Model<Page, MutPage, i32> for Page {
     }
 
     fn update(
-        _id: i32,
+        _id: String,
         new_page: &MutPage,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::id;
-        use crate::schema::pages::dsl::pages;
+        use pages::dsl::uuid;
 
-        Ok(diesel::update(pages.filter(id.eq(_id)))
+        Ok(diesel::update(pages::table.filter(uuid.eq(_id)))
             .set(new_page)
             .execute(db)?)
     }
 
-    fn delete(_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use crate::schema::pages::dsl::id;
-        use crate::schema::pages::dsl::pages;
+    fn delete(_id: String, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use pages::dsl::uuid;
 
-        Ok(diesel::delete(pages.filter(id.eq(_id))).execute(db)?)
+        Ok(diesel::delete(pages::table.filter(uuid.eq(_id))).execute(db)?)
     }
 }
 
 impl Page {
     pub fn read_one_join_on(
-        _id: i32,
+        _id: String,
         db: &MysqlConnection,
     ) -> Result<PageModuleDTO, diesel::result::Error> {
-        use crate::schema::pages::dsl::id;
-        use crate::schema::modules::dsl::category;
+        use pages::dsl::uuid;
+        use modules::dsl::category;
 
-        let filtered_page = pages::table.filter(id.eq(_id)).first::<Page>(db)?;
+        let filtered_page = pages::table.filter(uuid.eq(_id)).first::<Page>(db)?;
 
         let modules_no_category = Module::belonging_to(&filtered_page).filter(category.is_null()).load::<Module>(db)?;
 
@@ -154,6 +158,7 @@ impl Page {
                 id: a.1.id,
                 title: a.1.title.clone(),
                 modules: a.0.clone(),
+                guid: a.1.guid.clone(),
             })
             .collect::<Vec<_>>();
 
@@ -198,6 +203,7 @@ impl Page {
             .iter()
             .map(|a| CategoryDTO {
                 id: a.1.id,
+                guid: a.1.guid.clone(),
                 title: a.1.title.clone(),
                 modules: a.0.clone(),
             })

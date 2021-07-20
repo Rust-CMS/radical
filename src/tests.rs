@@ -3,6 +3,7 @@ use std::io::BufReader;
 use actix_web::{http::StatusCode, web};
 use diesel::r2d2::{ConnectionManager, Pool, PoolError};
 use diesel::MysqlConnection;
+use uuid::Uuid;
 
 use crate::controllers::config_controllers::LocalConfig;
 use crate::models::MySQLPool;
@@ -41,6 +42,7 @@ async fn create_test_page() {
         page_name: String::from("Hello world!"),
         page_url: String::from("/"),
         page_title: String::from("Hello world!"),
+    guid: Some(Uuid::new_v4().to_string()),
     };
     page_controllers::create_page(web::Json(new_page), db)
         .await
@@ -51,11 +53,12 @@ async fn create_test_page() {
 async fn create_test_module() {
     let db = web::Data::new(establish_database_connection().unwrap());
     let new_module = MutModule {
-        module_id: Some(-1),
+        id: Some(-1),
         module_type_id: 1,
         content: String::from("Hello world!"),
         title: String::from("test"),
         page_id: -1,
+        guid: Some(Uuid::new_v4().to_string()),
     };
 
     module_controllers::create_module(web::Json(new_module), db)
@@ -84,6 +87,7 @@ async fn create_page() {
         page_name: String::from("create_page_ut"),
         page_url: String::from("/create_page_ut"),
         page_title: String::from("create_page_ut"),
+        guid: Some(Uuid::new_v4().to_string()),
     };
     let resp = page_controllers::create_page(web::Json(new_page), db)
         .await
@@ -139,10 +143,11 @@ async fn update_page() {
     create_test_page().await;
 
     let new_page = MutPage {
+        id: Some(-1),
         page_name: String::from("Hello world!"),
         page_url: String::from("/"),
         page_title: String::from("Hello world!"),
-        id: Some(-1),
+        guid: Some(Uuid::new_v4().to_string()),
     };
 
     let resp = page_controllers::update_page(web::Json(new_page), web::Path(-1), db)
@@ -160,11 +165,12 @@ async fn create_modules() {
     create_test_page().await;
 
     let new_module = MutModule {
-        module_id: Some(-1),
+        id: Some(-1),
         module_type_id: 1,
         content: String::from("Hello world!"),
         title: String::from("title"),
         page_id: -1,
+        guid: Some(Uuid::new_v4().to_string()),
     };
     let resp = module_controllers::create_module(web::Json(new_module), db)
         .await
@@ -210,11 +216,12 @@ async fn update_modules() {
     create_test_module().await;
 
     let new_module = MutModule {
-        module_id: Some(-1),
+        id: Some(-1),
         module_type_id: 1,
         content: String::from("Hello world!"),
         title: String::from("title"),
         page_id: -1,
+        guid: Some(Uuid::new_v4().to_string()),
     };
 
     let resp = module_controllers::update_module(web::Json(new_module), web::Path(-1), db)

@@ -78,12 +78,12 @@ pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, Custo
 }
 
 pub async fn get_page(
-    id: web::Path<i32>,
+    id: web::Path<String>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page: Page = Page::read_one(*id, &mysql_pool)?;
+    let page: Page = Page::read_one(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &page)
 }
@@ -92,35 +92,35 @@ pub async fn get_page(
 /// A tuple generates a nasty response that isn't well defined.
 /// This function parses it in to a Page that has all of the Modules as children.
 pub async fn get_page_join_modules(
-    id: web::Path<i32>,
+    id: web::Path<String>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let page_vec = Page::read_one_join_on(*id, &mysql_pool)?;
+    let page_vec = Page::read_one_join_on(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &page_vec)
 }
 
 pub async fn update_page(
     updated_page: web::Json<MutPage>,
-    id: web::Path<i32>,
+    id: web::Path<String>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::update(*id, &updated_page, &mysql_pool)?;
+    Page::update(id.clone(), &updated_page, &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &*updated_page)
 }
 
 pub async fn delete_page(
-    id: web::Path<i32>,
+    id: web::Path<String>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::delete(*id, &mysql_pool)?;
+    Page::delete(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
 }
