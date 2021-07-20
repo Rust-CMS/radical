@@ -59,12 +59,12 @@ pub async fn delete_module(
 }
 
 pub async fn get_module_category(
-    id: web::Path<i32>,
+    id: web::Path<String>,
     pool: web::Data<MySQLPool>
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    let modules = ModuleCategory::join(*id, &mysql_pool)?;
+    let modules = ModuleCategory::join(id.clone(), &mysql_pool)?;
 
     HttpResponseBuilder::new(200, &modules)
 }

@@ -34,7 +34,7 @@ pub struct MutModule {
     pub content: String,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Deserialize)]
 pub struct ModuleCategoryDTO {
     pub uuid: String,
     pub title: String,
@@ -86,6 +86,14 @@ impl From<Module> for ModuleDTO {
     }
 }
 
+type ModuleDTOColumns = (modules::columns::uuid, modules::columns::title, modules::columns::content);
+impl DTO<ModuleDTOColumns> for ModuleDTO {
+    fn columns() -> ModuleDTOColumns {
+        use modules::columns::*;
+        (uuid, title, content)
+    }
+}
+
 #[derive(
     Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash,
 )]
@@ -105,49 +113,49 @@ pub struct MutCategory {
 }
 
 impl ModuleCategory {
-    pub fn join(_id: i32, db: &MysqlConnection) -> Result<Vec<Module>, diesel::result::Error> {
-        use module_category::dsl::id;
-        let categories = module_category::table.filter(id.eq(_id)).first::<Self>(db)?;
+    pub fn join(_id: String, db: &MysqlConnection) -> Result<Vec<ModuleDTO>, diesel::result::Error> {
+        use module_category::dsl::uuid;
+        let categories = module_category::table.filter(uuid.eq(_id)).first::<Self>(db)?;
 
-        Module::belonging_to(&categories).load::<Module>(db)
+        Module::belonging_to(&categories).select(ModuleDTO::columns()).load::<ModuleDTO>(db)
     }
 }
 
-impl Model<Self, MutCategory, i32> for ModuleCategory {
+impl Model<Self, MutCategory, String, ModuleCategoryDTO> for ModuleCategory {
     fn create(new: &MutCategory, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         Ok(diesel::insert_or_ignore_into(module_category::table)
             .values(new)
             .execute(db)?)
     }
 
-    fn read_one(_id: i32, db: &MysqlConnection) -> Result<Self, diesel::result::Error> {
-        use module_category::dsl::id;
+    fn read_one(_id: String, db: &MysqlConnection) -> Result<ModuleCategoryDTO, diesel::result::Error> {
+        use module_category::dsl::uuid;
 
-        let module = module_category::table.filter(id.eq(_id)).first::<Self>(db)?;
+        let module = module_category::table.select(ModuleCategoryDTO::columns()).filter(uuid.eq(_id)).first::<ModuleCategoryDTO>(db)?;
 
         Ok(module)
     }
 
-    fn read_all(_db: &MysqlConnection) -> Result<Vec<Self>, diesel::result::Error> {
+    fn read_all(_db: &MysqlConnection) -> Result<Vec<ModuleCategoryDTO>, diesel::result::Error> {
         unimplemented!()
     }
 
     fn update(
-        _id: i32,
+        _id: String,
         new: &MutCategory,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
-        use crate::schema::module_category::dsl::id;
+        use module_category::dsl::uuid;
 
-        Ok(diesel::update(module_category::table.filter(id.eq(_id)))
+        Ok(diesel::update(module_category::table.filter(uuid.eq(_id)))
             .set(new)
             .execute(db)?)
     }
 
-    fn delete(_id: i32, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
-        use crate::schema::module_category::dsl::id;
+    fn delete(_id: String, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use module_category::dsl::uuid;
 
-        Ok(diesel::delete(module_category::table.filter(id.eq(_id))).execute(db)?)
+        Ok(diesel::delete(module_category::table.filter(uuid.eq(_id))).execute(db)?)
     }
 }
 
