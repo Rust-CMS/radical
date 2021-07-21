@@ -1,35 +1,23 @@
 table! {
-    module_category (id) {
-        id -> Integer,
+    module_category (uuid) {
         uuid -> Varchar,
+        page_uuid -> Varchar,
         title -> Varchar,
     }
 }
 
 table! {
-    module_types (module_type_id) {
-        module_type_id -> Integer,
+    modules (uuid) {
         uuid -> Varchar,
+        page_uuid -> Varchar,
+        category_uuid -> Nullable<Varchar>,
         title -> Varchar,
-        module_desc -> Varchar,
-    }
-}
-
-table! {
-    modules (id) {
-        id -> Integer,
-        uuid -> Varchar,
-        module_type_id -> Integer,
-        title -> Varchar,
-        page_id -> Integer,
         content -> Text,
-        category -> Nullable<Integer>,
     }
 }
 
 table! {
-    pages (id) {
-        id -> Integer,
+    pages (uuid) {
         uuid -> Varchar,
         page_name -> Varchar,
         page_url -> Varchar,
@@ -38,21 +26,12 @@ table! {
     }
 }
 
-table! {
-    web_config (config_key) {
-        config_key -> Varchar,
-        config_val -> Varchar,
-    }
-}
-
-joinable!(modules -> module_category (category));
-joinable!(modules -> module_types (module_type_id));
-joinable!(modules -> pages (page_id));
+joinable!(module_category -> pages (page_uuid));
+joinable!(modules -> module_category (category_uuid));
+joinable!(modules -> pages (page_uuid));
 
 allow_tables_to_appear_in_same_query!(
     module_category,
-    module_types,
     modules,
     pages,
-    web_config,
 );

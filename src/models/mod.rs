@@ -1,11 +1,13 @@
-pub mod config_models;
 pub mod module_models;
 pub mod page_models;
+pub mod config_models;
 
 use actix_web::web;
 use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
 
-use crate::{controllers::config_controllers::LocalConfig, middleware::errors_middleware::CustomHttpError};
+use crate::{middleware::errors_middleware::CustomHttpError};
+
+use self::config_models::LocalConfig;
 
 pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
 pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;

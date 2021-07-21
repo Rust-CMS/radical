@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use uuid::Uuid;
 
 use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{Module, ModuleCategory, MutModule};
@@ -7,14 +8,17 @@ use crate::middleware::errors_middleware::CustomHttpError;
 use crate::middleware::response_middleware::HttpResponseBuilder;
 
 pub async fn create_module(
-    new_module: web::Json<MutModule>,
+    new: web::Json<MutModule>,
     pool: web::Data<MySQLPool>,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Module::create(&new_module, &mysql_pool)?;
+    let mut uuid_new = new.clone();
+    uuid_new.uuid = Some(Uuid::new_v4().to_string());
 
-    HttpResponseBuilder::new(201, &*new_module)
+    Module::create(&uuid_new, &mysql_pool)?;
+
+    HttpResponseBuilder::new(201, &uuid_new)
 }
 
 pub async fn get_modules(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {

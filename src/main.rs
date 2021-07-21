@@ -22,11 +22,10 @@ mod watch;
 #[cfg(test)]
 mod tests;
 
-use routers::config_routers::{DatabaseConfigRouter, LocalConfigRouter};
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
-use crate::controllers::config_controllers::LocalConfig;
+use crate::models::config_models::LocalConfig;
 use crate::routers::category_routers::CategoryRouter;
 
 #[macro_use]
@@ -93,8 +92,6 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(PageRouter::new())
                     .service(ModuleRouter::new())
-                    .service(LocalConfigRouter::new())
-                    .service(DatabaseConfigRouter::new())
                     .service(CategoryRouter::new()),
             )
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())

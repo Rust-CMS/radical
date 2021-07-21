@@ -3,104 +3,54 @@ use diesel::{Insertable, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
 use super::page_models::Page;
-use super::{DTO, Model};
+use super::{Model};
 use crate::schema::module_category;
 use crate::schema::modules;
 
-#[derive(
-    Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash,
-)]
-#[belongs_to(Page)]
-#[belongs_to(ModuleCategory, foreign_key = "category")]
+#[derive(Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash)]
+#[belongs_to(Page, foreign_key = "page_uuid")]
+#[belongs_to(ModuleCategory, foreign_key = "category_uuid")]
+#[primary_key(uuid)]
 #[table_name = "modules"]
 pub struct Module {
-    pub id: i32,
     pub uuid: String,
-    pub module_type_id: i32,
+    pub page_uuid: String,
+    pub category_uuid: Option<String>,
     pub title: String,
-    pub page_id: i32,
     pub content: String,
-    pub category: Option<i32>,
 }
 
-#[derive(Insertable, AsChangeset, Deserialize, Serialize)]
+#[derive(Insertable, AsChangeset, Deserialize, Serialize, Clone)]
 #[table_name = "modules"]
 pub struct MutModule {
-    pub id: Option<i32>,
     pub uuid: Option<String>,
-    pub module_type_id: i32,
     pub title: String,
-    pub page_id: i32,
+    pub page_uuid: String,
     pub content: String,
-}
-
-#[derive(Queryable, Serialize, Deserialize)]
-pub struct ModuleCategoryDTO {
-    pub uuid: String,
-    pub title: String,
-}
-
-impl From<ModuleCategory> for ModuleCategoryDTO {
-    fn from(category: ModuleCategory) -> ModuleCategoryDTO {
-        ModuleCategoryDTO {
-            uuid: category.uuid,
-            title: category.title,
-        }
-    }
-}
-
-type ModuleCategoryColumns = (module_category::columns::uuid, module_category::columns::title);
-impl DTO<ModuleCategoryColumns> for ModuleCategoryDTO {
-    fn columns() -> ModuleCategoryColumns {
-        (module_category::columns::uuid, module_category::columns::title)
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoryDTO {
     pub uuid: String,
     pub title: String,
-    pub modules: Vec<ModuleDTO>
+    pub modules: Vec<Module>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct FieldsDTO {
-    pub modules: Vec<ModuleDTO>,
+    pub modules: Vec<Module>,
     pub categories: Option<Vec<CategoryDTO>>
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable)]
-pub struct ModuleDTO {
-    pub uuid: String,
-    pub title: String,
-    pub content: String,
-}
-
-impl From<Module> for ModuleDTO {
-    fn from(module: Module) -> Self {
-        Self {
-            uuid: module.uuid,
-            title: module.title,
-            content: module.content,
-        }
-    }
-}
-
-type ModuleDTOColumns = (modules::columns::uuid, modules::columns::title, modules::columns::content);
-impl DTO<ModuleDTOColumns> for ModuleDTO {
-    fn columns() -> ModuleDTOColumns {
-        use modules::columns::*;
-        (uuid, title, content)
-    }
 }
 
 #[derive(
     Debug, Identifiable, Associations, Serialize, Deserialize, Queryable, PartialEq, Clone, Eq, Hash,
 )]
+#[primary_key(uuid)]
+#[belongs_to(Page, foreign_key = "page_uuid")]
 #[table_name = "module_category"]
 pub struct ModuleCategory {
-    pub id: i32,
     pub uuid: String,
+    pub page_uuid: String,
     pub title: String
 }
 
@@ -109,34 +59,36 @@ pub struct ModuleCategory {
 )]
 #[table_name = "module_category"]
 pub struct MutCategory {
-    pub title: String
+    pub title: String,
+    pub page_uuid: String,
+    pub uuid: Option<String>
 }
 
 impl ModuleCategory {
-    pub fn join(_id: String, db: &MysqlConnection) -> Result<Vec<ModuleDTO>, diesel::result::Error> {
+    pub fn join(_id: String, db: &MysqlConnection) -> Result<Vec<Module>, diesel::result::Error> {
         use module_category::dsl::uuid;
         let categories = module_category::table.filter(uuid.eq(_id)).first::<Self>(db)?;
 
-        Module::belonging_to(&categories).select(ModuleDTO::columns()).load::<ModuleDTO>(db)
+        Module::belonging_to(&categories).load::<Module>(db)
     }
 }
 
-impl Model<Self, MutCategory, String, ModuleCategoryDTO> for ModuleCategory {
+impl Model<Self, MutCategory, String, ModuleCategory> for ModuleCategory {
     fn create(new: &MutCategory, db: &MysqlConnection) -> Result<usize, diesel::result::Error> {
         Ok(diesel::insert_or_ignore_into(module_category::table)
             .values(new)
             .execute(db)?)
     }
 
-    fn read_one(_id: String, db: &MysqlConnection) -> Result<ModuleCategoryDTO, diesel::result::Error> {
+    fn read_one(_id: String, db: &MysqlConnection) -> Result<ModuleCategory, diesel::result::Error> {
         use module_category::dsl::uuid;
 
-        let module = module_category::table.select(ModuleCategoryDTO::columns()).filter(uuid.eq(_id)).first::<ModuleCategoryDTO>(db)?;
+        let module = module_category::table.filter(uuid.eq(_id)).first::<ModuleCategory>(db)?;
 
         Ok(module)
     }
 
-    fn read_all(_db: &MysqlConnection) -> Result<Vec<ModuleCategoryDTO>, diesel::result::Error> {
+    fn read_all(_db: &MysqlConnection) -> Result<Vec<ModuleCategory>, diesel::result::Error> {
         unimplemented!()
     }
 
@@ -159,17 +111,17 @@ impl Model<Self, MutCategory, String, ModuleCategoryDTO> for ModuleCategory {
     }
 }
 
-impl Model<Self, MutModule, String, ModuleDTO> for Module {
+impl Model<Self, MutModule, String, Module> for Module {
     fn create(
         new_module: &MutModule,
         db: &MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
-        Ok(diesel::insert_or_ignore_into(modules::table)
+        Ok(diesel::insert_into(modules::table)
             .values(new_module)
             .execute(db)?)
     }
 
-    fn read_one(mod_id: String, db: &MysqlConnection) -> Result<ModuleDTO, diesel::result::Error> {
+    fn read_one(mod_id: String, db: &MysqlConnection) -> Result<Module, diesel::result::Error> {
         use modules::dsl::uuid;
 
         let module = modules::table.filter(uuid.eq(mod_id)).first::<Self>(db)?;
@@ -177,10 +129,10 @@ impl Model<Self, MutModule, String, ModuleDTO> for Module {
         Ok(module.into())
     }
 
-    fn read_all(db: &MysqlConnection) -> Result<Vec<ModuleDTO>, diesel::result::Error> {
-        use modules::dsl::category;
+    fn read_all(db: &MysqlConnection) -> Result<Vec<Module>, diesel::result::Error> {
+        use modules::dsl::category_uuid;
         Ok(modules::table
-            .filter(category.is_null())
+            .filter(category_uuid.is_null())
             .load::<Module>(db)?.into_iter().map(|m| { m.into() }).collect())
     }
 
