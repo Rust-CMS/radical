@@ -21,7 +21,7 @@ fn get(
 
     // helper that allows a custom error message to show if the value does not exist in the database yet.
     // errors are passed up through `ok_or` returning a RenderError, then passed to the `try` block.
-    let field_closure  = (|| -> Result<String, RenderError> {
+    let field  = (|| -> Result<String, RenderError> {
         let values = ctx
             .data()
             .get("fields")
@@ -38,7 +38,7 @@ fn get(
         Ok(values)
     })();
 
-    out.write(&field_closure.unwrap_or_else(|e| e.desc))?;
+    out.write(&field.unwrap_or_else(|e| e.desc))?;
     Ok(())
 }
 
@@ -63,7 +63,7 @@ impl HelperDef for ArrayHelper {
             ))?
             .render();
 
-        let res = (|| -> Result<ScopedJson, RenderError>  {
+        let fields = (|| -> Result<ScopedJson, RenderError>  {
             let values = ctx
                 .data()
                 .get("array_fields")
@@ -78,8 +78,8 @@ impl HelperDef for ArrayHelper {
 
             Ok(values)
         })();
-        let a: Vec<String> = Vec::new();
-        Ok(Some(res.unwrap_or(to_json(a).into())))
+        let empty_array: Vec<String> = Vec::new();
+        Ok(Some(fields.unwrap_or(to_json(empty_array).into())))
     }
 }
 
