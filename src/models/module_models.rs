@@ -26,7 +26,7 @@ pub struct MutModule {
     pub uuid: Option<String>,
     pub title: String,
     pub page_uuid: String,
-    pub category_uuid: String,
+    pub category_uuid: Option<String>,
     pub content: String,
 }
 
