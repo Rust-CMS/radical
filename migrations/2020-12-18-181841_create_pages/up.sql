@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS pages (
     time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-INSERT IGNORE INTO pages (page_name, uuid, page_url, page_title) VALUES ("index", (SELECT UUID()), "/", "Hello world.");
+INSERT IGNORE INTO pages (page_name, uuid, page_url, page_title) VALUES ("index", (SELECT UUID()), "/", "Home");
 
 CREATE TABLE module_category (
     uuid varchar(255) PRIMARY KEY,
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS modules (
     FOREIGN KEY (category_uuid) REFERENCES module_category(uuid) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "title", (SELECT uuid FROM pages LIMIT 1), "This is the `title` module!!");
-INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "small", (SELECT uuid FROM pages LIMIT 1), "This is the `small` module!");
+INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "title", (SELECT uuid FROM pages LIMIT 1), "Welcome to RCMS.");
+INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "small", (SELECT uuid FROM pages LIMIT 1), "A Rusty Wordpress Replacement");
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color1", (SELECT uuid FROM pages LIMIT 1), "red", (SELECT uuid FROM module_category LIMIT 1));
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color2", (SELECT uuid FROM pages LIMIT 1), "blue", (SELECT uuid FROM module_category LIMIT 1));
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color3", (SELECT uuid FROM pages LIMIT 1), "green", (SELECT uuid from module_category LIMIT 1));

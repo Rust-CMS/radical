@@ -16,12 +16,42 @@
 </head>
 
 <body>
-    <main>
-        <h1>{{get "title"}}</h1>
+    <main class="container">
+        <div class="vh-100 d-flex flex-column justify-content-center">
+            <div class="mx-auto w-75">
+                <h1 class="display-1">{{get "title"}}</h1>
+                <small class="subheading">{{get "small"}}</small>
+            </div>
+        </div>
 
-        {{#each (getarray "colors") as | color |}}
-            {{color.content}}
-        {{/each}}
+        <div class="repeaters my-5">
+            <h1>Repeaters</h1>
+            <hr class="my-5">
+            <div class="d-flex justify-content-center my-5">
+                {{#each (getarray "colors") as | color |}}
+                <div class="card w-25 mx-5">
+                    <div class="card-body">
+                        <h5 class="card-title">{{color.title}}</h5>
+                        <p class="card-text">{{color.content}}</p>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="modules my-5">
+            <h1>Modules</h1>
+            <hr class="my-5">
+
+            <small>{{get "title"}}</small>
+            <h1 class="display-5">{{get "small"}}</h1>
+        </div>
+
+        <div class="get-started">
+            <h1>Get Started.</h1>
+            <hr>
+            <p><a href="https://github.com/Rust-CMS/tooling">docker-compose</a></p>
+        </div>
     </main>
 </body>
 
