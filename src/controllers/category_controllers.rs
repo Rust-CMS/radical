@@ -11,7 +11,7 @@ pub async fn create_category(new: web::Json<MutCategory>, pool: web::Data<MySQLP
 
     ModuleCategory::create(&uuid_new, &mysql_pool)?;
 
-    HttpResponseBuilder::new(201, &"Successfully created.".to_owned())
+    HttpResponseBuilder::new(201, &uuid_new)
 }
 
 pub async fn update_category(id: web::Path<String>, new: web::Json<MutCategory>, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {

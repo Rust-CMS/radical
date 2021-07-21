@@ -5,7 +5,6 @@ use std::collections::HashMap;
 
 use super::module_models::Module;
 use super::Model;
-use super::module_models::ModuleDTO;
 use crate::models::module_models::CategoryDTO;
 use crate::models::module_models::FieldsDTO;
 use crate::models::module_models::ModuleCategory;
@@ -14,8 +13,8 @@ use crate::schema::modules;
 use crate::schema::pages;
 
 #[derive(Identifiable, Debug, Serialize, Deserialize, Queryable, PartialEq, Clone)]
+#[primary_key(uuid)]
 pub struct Page {
-    pub id: i32,
     pub uuid: String,
     /// This should match the name of the HTML file.
     pub page_name: String,
@@ -28,7 +27,6 @@ pub struct Page {
 #[derive(Insertable, AsChangeset, Deserialize, Serialize, Clone)]
 #[table_name = "pages"]
 pub struct MutPage {
-    pub id: Option<i32>,
     pub uuid: Option<String>,
     pub page_name: String,
     pub page_url: String,
@@ -45,8 +43,8 @@ pub struct PageModuleDisplayDTO {
     pub time_created: NaiveDateTime,
     /// the key of the hashmap is the `title` of the module, and the rest is the module.
     /// For the usefulness of this, see the `get` function on the default helpers.
-    pub fields: HashMap<String, ModuleDTO>,
-    pub array_fields: HashMap<String, Vec<ModuleDTO>>,
+    pub fields: HashMap<String, Module>,
+    pub array_fields: HashMap<String, Vec<Module>>,
 }
 
 impl From<Page> for PageModuleDisplayDTO {
@@ -154,17 +152,14 @@ impl Page {
         db: &MysqlConnection,
     ) -> Result<PageModuleDTO, diesel::result::Error> {
         use pages::dsl::uuid;
-        use modules::dsl::category;
+        use modules::dsl::category_uuid;
 
         let filtered_page = pages::table.filter(uuid.eq(_id)).first::<Page>(db)?;
 
-        let modules_no_category = Module::belonging_to(&filtered_page).filter(category.is_null()).load::<Module>(db)?;
+        let modules_no_category = Module::belonging_to(&filtered_page).filter(category_uuid.is_null()).load::<Module>(db)?;
 
-        let categories = Module::belonging_to(&filtered_page)
-            .inner_join(module_category::table)
-            .select(module_category::all_columns)
-            .distinct()
-            .load::<ModuleCategory>(db)?;
+        // TODO this is wrong because if a category has no members, it will not return anything.
+        let categories =  ModuleCategory::belonging_to(&filtered_page).load::<ModuleCategory>(db)?;
 
         let module_array: Vec<(Vec<Module>, ModuleCategory)> = Module::belonging_to(&categories)
             .load::<Module>(db)?
@@ -178,7 +173,7 @@ impl Page {
             .iter()
             .map(|a| CategoryDTO {
                 title: a.1.title.clone(),
-                modules: a.0.clone().into_iter().map(|m| m.into()).collect(),
+                modules: a.0.clone(),
                 uuid: a.1.uuid.clone(),
             })
             .collect::<Vec<_>>();
