@@ -9,7 +9,7 @@ use crate::models::{pool_handler, Model, MySQLPool};
 use crate::models::module_models::{FieldsDTO};
 use crate::models::page_models::{PageModuleDisplayDTO,MutPage, Page, PageDTO};
 
-use crate::middleware::errors_middleware::CustomHttpError;
+use crate::services::errors_service::CustomHttpError;
 
 fn parse_page(page: (Page, FieldsDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
     let origin_page = page.0;

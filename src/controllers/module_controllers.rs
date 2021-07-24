@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{Module, ModuleCategory, MutModule};
 
-use crate::middleware::errors_middleware::CustomHttpError;
+use crate::services::errors_service::CustomHttpError;
 
 pub async fn create_module(
     new: web::Json<MutModule>,
