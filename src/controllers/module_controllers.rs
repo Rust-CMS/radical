@@ -5,7 +5,6 @@ use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{Module, ModuleCategory, MutModule};
 
 use crate::middleware::errors_middleware::CustomHttpError;
-use crate::middleware::response_middleware::HttpResponseBuilder;
 
 pub async fn create_module(
     new: web::Json<MutModule>,
@@ -18,14 +17,14 @@ pub async fn create_module(
 
     Module::create(&uuid_new, &mysql_pool)?;
 
-    HttpResponseBuilder::new(201, &uuid_new)
+    Ok(HttpResponse::Created().json(uuid_new))
 }
 
 pub async fn get_modules(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let modules = Module::read_all(&mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &modules)
+    Ok(HttpResponse::Created().json(modules))
 }
 
 pub async fn get_module(
@@ -36,7 +35,7 @@ pub async fn get_module(
 
     let module = Module::read_one(id.clone(), &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &module)
+    Ok(HttpResponse::Created().json(module))
 }
 
 pub async fn update_module(
@@ -48,7 +47,7 @@ pub async fn update_module(
 
     Module::update(id.clone(), &updated_module, &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &*updated_module)
+    Ok(HttpResponse::Created().json(updated_module.0))
 }
 
 pub async fn delete_module(
@@ -57,9 +56,9 @@ pub async fn delete_module(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Module::delete(id.clone(), &mysql_pool)?;
+    let res = Module::delete(id.clone(), &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
+    Ok(HttpResponse::Created().json(res))
 }
 
 pub async fn get_module_category(
@@ -70,5 +69,5 @@ pub async fn get_module_category(
 
     let modules = ModuleCategory::join(id.clone(), &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &modules)
+    Ok(HttpResponse::Created().json(modules))
 }

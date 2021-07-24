@@ -10,7 +10,6 @@ use crate::models::module_models::{FieldsDTO};
 use crate::models::page_models::{PageModuleDisplayDTO,MutPage, Page, PageDTO};
 
 use crate::middleware::errors_middleware::CustomHttpError;
-use crate::middleware::response_middleware::HttpResponseBuilder;
 
 fn parse_page(page: (Page, FieldsDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
     let origin_page = page.0;
@@ -70,14 +69,15 @@ pub async fn create_page(
 
     Page::create(&uuid_new, &mysql_pool)?;
 
-    HttpResponseBuilder::new(201, &uuid_new)
+    Ok(HttpResponse::Ok().json(uuid_new))
 }
 
 pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let pages: Vec<PageDTO> = Page::read_all(&mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &pages)
+    Ok(HttpResponse::Ok().json(pages))
+
 }
 
 pub async fn get_page(
@@ -87,13 +87,10 @@ pub async fn get_page(
     let mysql_pool = pool_handler(pool)?;
 
     let page: PageDTO = Page::read_one(id.clone(), &mysql_pool)?;
+    Ok(HttpResponse::Ok().json(page))
 
-    HttpResponseBuilder::new(200, &page)
 }
 
-/// This function also parses the read_one_join_on result out of a tuple.
-/// A tuple generates a nasty response that isn't well defined.
-/// This function parses it in to a Page that has all of the Modules as children.
 pub async fn get_page_join_modules(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
@@ -102,7 +99,7 @@ pub async fn get_page_join_modules(
 
     let page_vec = Page::read_one_join_on(id.clone(), &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &page_vec)
+    Ok(HttpResponse::Ok().json(page_vec))
 }
 
 pub async fn update_page(
@@ -114,7 +111,8 @@ pub async fn update_page(
 
     Page::update(id.clone(), &updated_page, &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &*updated_page)
+    Ok(HttpResponse::Ok().json(updated_page.0))
+
 }
 
 pub async fn delete_page(
@@ -123,7 +121,7 @@ pub async fn delete_page(
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
-    Page::delete(id.clone(), &mysql_pool)?;
+    let res = Page::delete(id.clone(), &mysql_pool)?;
 
-    HttpResponseBuilder::new(200, &format!("Successfully deleted resource {}", id))
+    Ok(HttpResponse::Ok().json(res))
 }

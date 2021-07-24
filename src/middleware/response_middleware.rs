@@ -1,34 +1,67 @@
-use actix_web::HttpResponse;
-use serde::{Serialize};
+use std::future::{Future, Ready, ready};
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
-use crate::middleware::errors_middleware::{CustomHttpError};
+use actix_web::Error;
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
 
-/// A generic HTTP responder. Different than actix-web's one.
-/// This works better as it allows for a consistent JSON response layout across the entire API.
-#[derive(Serialize)]
-pub struct HttpResponseBuilder<T> {
-    code: u16,
-    message: T
+// There are two steps in middleware processing.
+// 1. Middleware initialization, middleware factory gets called with
+//    next service in chain as parameter.
+// 2. Middleware's call method gets called with normal request.
+
+pub struct HttpResponse;
+
+// Middleware factory is `Transform` trait from actix-service crate
+// `S` - type of the next service
+// `B` - type of response's body
+impl<S, B> Transform<S> for HttpResponse
+where
+    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S::Future: 'static,
+    B: 'static,
+{
+    type Request = ServiceRequest;
+    type Response = ServiceResponse<B>;
+    type Error = Error;
+    type InitError = ();
+    type Transform = HttpResponseMiddleware<S>;
+    type Future = Ready<Result<Self::Transform, Self::InitError>>;
+
+    fn new_transform(&self, service: S) -> Self::Future {
+        ready(Ok(HttpResponseMiddleware { service }))
+    }
 }
 
-impl<Body: Serialize> HttpResponseBuilder<Body> {
-    /// Generates a new HTTP response builder.
-    /// First, creates a new instance of the struct. 
-    /// Then it matches the code to an HTTP response, and finally sends back the HttpResponseBuilder object.
-    pub fn new(code: u16, message: &Body) -> Result<HttpResponse, CustomHttpError> {
-        let cm = HttpResponseBuilder {
-            code,
-            message
-        };
+pub struct HttpResponseMiddleware<S> {
+    service: S,
+}
 
-        // Eventually, the final arm of this match needs to be a CustomHttpError.
-        let mut m = match code {
-            200 => HttpResponse::Ok(),
-            201 => HttpResponse::Created(),
-            204 => HttpResponse::NoContent(),
-            _ => HttpResponse::BadRequest()
-        };
+impl<S, B> Service for HttpResponseMiddleware<S>
+where
+    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S::Future: 'static,
+    B: 'static,
+{
+    type Request = ServiceRequest;
+    type Response = ServiceResponse<B>;
+    type Error = Error;
+    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
 
-        Ok(m.body(serde_json::to_string(&cm).or(Err(CustomHttpError::Unknown))?))
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        self.service.poll_ready(cx)
+    }
+
+    fn call(&mut self, req: ServiceRequest) -> Self::Future {
+        println!("Hi from start. You requested: {}", req.path());
+
+        let fut = self.service.call(req);
+
+        Box::pin(async move {
+            let res = fut.await?;
+
+            println!("Hi from response");
+            Ok(res)
+        })
     }
 }
