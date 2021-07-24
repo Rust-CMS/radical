@@ -5,7 +5,7 @@ pub mod config_models;
 use actix_web::web;
 use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
 
-use crate::{middleware::errors_middleware::CustomHttpError};
+use crate::services::errors_service::CustomHttpError;
 
 use self::config_models::LocalConfig;
 
@@ -67,5 +67,5 @@ pub fn init_pool(db_url: &str) -> Result<MySQLPool, PoolError> {
 }
 
 pub fn pool_handler(pool: web::Data<MySQLPool>) -> Result<MySQLPooledConnection, CustomHttpError> {
-    pool.get().or(Err(CustomHttpError::Unknown))
+    pool.get().or(Err(CustomHttpError::BadRequest))
 }

@@ -1,7 +1,7 @@
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 use thiserror::Error;
-/// A custom type that defines errors that are mapped to HTTP errors later.
+
 #[derive(Error, Debug)]
 pub enum CustomHttpError {
     #[error("Incorrect parameter type.")]
@@ -14,15 +14,15 @@ pub enum CustomHttpError {
 
 /// Provides an interface for getting a description of the request.
 impl CustomHttpError {
-    pub fn name(&self) -> String {
+    pub fn descriptor(&self) -> String {
         match self {
-            Self::BadRequest => String::from("Bad Request"),
+            Self::BadRequest => String::from("Server was unable to handle data"),
             Self::Unknown => String::from("Internal server error"),
-            Self::NotFound => String::from("Not Found"),
+            Self::NotFound => String::from("Resource was not found"),
         }
     }
 }
-/// Struct that gets serialized and sent back to the user.
+
 #[derive(Serialize)]
 struct ErrorResponse {
     code: u16,
@@ -44,8 +44,8 @@ impl ResponseError for CustomHttpError {
         let status_code = self.status_code();
         let error_response = ErrorResponse {
             code: status_code.as_u16(),
-            message: self.to_string(),
-            error: self.name(),
+            message: self.descriptor(),
+            error: self.to_string(),
         };
 
         HttpResponse::build(status_code).json(error_response)

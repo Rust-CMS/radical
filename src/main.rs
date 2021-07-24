@@ -13,7 +13,7 @@ use actix_files as fs;
 
 mod controllers;
 mod helpers;
-mod middleware;
+mod services;
 mod models;
 mod routers;
 mod schema;
@@ -40,6 +40,7 @@ extern crate diesel_migrations;
 async fn main() -> std::io::Result<()> {
     embed_migrations!();
 
+    // if the program is running in release mode
     if cfg!(debug_assertions) {
         dotenv().unwrap();
     }

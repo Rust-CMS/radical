@@ -1,12 +1,9 @@
 use actix_web::{HttpResponse, web};
 use uuid::Uuid;
 
-use crate::{
-    middleware::{errors_middleware::CustomHttpError}, 
-    models::{Model, MySQLPool, 
-    module_models::{ModuleCategory, MutCategory},
-    pool_handler}
-};
+use crate::models::{Model, MySQLPool, pool_handler};
+use crate::models::module_models::{ModuleCategory, MutCategory};
+use crate::services::errors_service::CustomHttpError;
 
 pub async fn create_category(new: web::Json<MutCategory>, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
