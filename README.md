@@ -1,5 +1,16 @@
 # Radical
 
+## Index
+
+- [Project](#project-description)
+- [How to Install](https://github.com/Rust-CMS/tooling)
+- [Project State](#project-state)
+- [Testing](#note-on-testing)
+- [Dev Environment Setup](#dev-environment-setup)
+- [Environment Variables](#environment-variables)
+- [404 Pages](#notes-on-404-pages)
+- [Similar Repositories](#repositories-like-this)
+
 ## Project Description
 
 Radical is a CMS heavily inspired by [Processwire](https://processwire.com/). This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
