@@ -1,26 +1,22 @@
-# RCMS
-
-> Name Suggestions Appreciated
+# Radical
 
 ## Project Description
 
-RustCMS is a barebones backend CMS that works much like [Processwire](https://processwire.com/) works. This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
+Radical is a CMS heavily inspired by [Processwire](https://processwire.com/). This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
 
-## Check It Out Now
+## Install It in 3 Minutes
 
 If you have docker, all you need to do is run [this](https://github.com/Rust-CMS/tooling) docker-compose.
 
 ## Project State
 
-Version: v0.1.0
+Version: v0.1.1
 
 |             | Ready |
 | ----------- | ----------- |
 | Backend | ✅ |
 | Frontend | ✅ |
 | Production | - |
-
-This project has a functioning frontend, but it is not fully featured yet.
 
 ## Note on testing
 
