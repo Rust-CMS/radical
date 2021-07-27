@@ -16,4 +16,10 @@ COPY wait-for-it.sh .
 
 ENV APP_PRODUCTION=true
 
+# Defaulted just in case someone wants to use mysqld.sock as their socket.
+# This file doesn't even exist in the fs so I don't know why this would be defaulted here?
+ENV MYSQL_UNIX_PORT = /var/lib/mysql/mysqld.sock
+
+RUN ln -s /var/lib/mysql/mysqld.sock ${SOCKET_PATH}
+
 CMD [ "rcms" ]

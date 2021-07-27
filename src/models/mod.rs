@@ -56,7 +56,7 @@ pub fn format_connection_string(conf: LocalConfig) -> String {
         }
         None if conf.sql_name.is_some() && conf.socket_dir.is_some() => {
             format!(
-                "mysql://{}:{}@/{}?unix_socket={}/{}",
+                "mysql://{}:{}@/{}?unix_socket=({}/{})",
                 conf.mysql_username,
                 conf.mysql_password,
                 conf.mysql_database,
