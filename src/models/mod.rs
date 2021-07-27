@@ -1,9 +1,12 @@
+pub mod config_models;
 pub mod module_models;
 pub mod page_models;
-pub mod config_models;
 
 use actix_web::web;
-use diesel::{MysqlConnection, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
+use diesel::{
+    r2d2::{ConnectionManager, Pool, PoolError, PooledConnection},
+    MysqlConnection,
+};
 
 use crate::services::errors_service::CustomHttpError;
 
@@ -40,14 +43,31 @@ pub trait Joinable<TLeft, TRight, TPrimary> {
 }
 
 pub fn format_connection_string(conf: LocalConfig) -> String {
-    format!(
-        "mysql://{}:{}@{}:{}/{}",
-        conf.mysql_username,
-        conf.mysql_password,
-        conf.mysql_url,
-        conf.mysql_port,
-        conf.mysql_database
-    )
+    match conf.mysql_url {
+        Some(mysql_url) => {
+            format!(
+                "mysql://{}:{}@{}:{}/{}",
+                conf.mysql_username,
+                conf.mysql_password,
+                mysql_url,
+                conf.mysql_port.unwrap(),
+                conf.mysql_database
+            )
+        }
+        None if conf.sql_name.is_some() && conf.socket_dir.is_some() => {
+            format!(
+                "mysql://{}:{}@/{}?unix_socket={}/{}",
+                conf.mysql_username,
+                conf.mysql_password,
+                conf.mysql_database,
+                conf.socket_dir.unwrap(),
+                conf.sql_name.unwrap()
+            )
+        }
+        None => {
+            panic!("Must supply one of the following: [mysql_url], [sql_name | socket_dir]")
+        }
+    }
 }
 
 pub fn establish_database_connection(conf: LocalConfig) -> Option<MySQLPool> {
