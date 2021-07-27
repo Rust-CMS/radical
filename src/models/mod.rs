@@ -54,14 +54,12 @@ pub fn format_connection_string(conf: LocalConfig) -> String {
                 conf.mysql_database
             )
         }
-        None if conf.sql_name.is_some() && conf.socket_dir.is_some() => {
+        None if std::env::var("MYSQL_UNIX_PORT").is_ok() => {
             format!(
-                "mysql://{}:{}@/{}?unix_socket=({}/{})",
+                "mysql://{}:{}@/{}",
                 conf.mysql_username,
                 conf.mysql_password,
-                conf.mysql_database,
-                conf.socket_dir.unwrap(),
-                conf.sql_name.unwrap()
+                conf.mysql_database
             )
         }
         None => {
