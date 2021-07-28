@@ -32,6 +32,8 @@ use middleware::auth::Authorization;
 use models::config_models::LocalConfig;
 use routers::category_routers::CategoryRouter;
 
+use crate::routers::user_routers::UserRouter;
+
 #[macro_use]
 extern crate diesel;
 #[macro_use]
@@ -106,7 +108,8 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(PageRouter::new())
                     .service(ModuleRouter::new())
-                    .service(CategoryRouter::new()),
+                    .service(CategoryRouter::new())
+                    .service(UserRouter::new()),
             )
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
             .default_service(web::get().to(controllers::page_controllers::display_page))

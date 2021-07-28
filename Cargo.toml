@@ -13,7 +13,11 @@ actix-service = "*"
 actix-files = "0.5.0"
 actix-cors = "0.5.4"
 actix-ratelimit = "0.3.1"
+
+# encryption
 jsonwebtoken = "7"
+argon2 = "0.2"
+rand_core = { version = "0.6", features = ["std"] }
 
 # serialization
 serde = {version = "1.0", features = ["derive"] }

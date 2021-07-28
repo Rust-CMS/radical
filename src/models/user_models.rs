@@ -1,9 +1,10 @@
 use super::Model;
 use diesel::prelude::*;
+use serde::{Serialize, Deserialize};
 
-use crate::schema::users;
+use crate::{schema::users};
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     pub uuid: String,
     pub username: String,
@@ -11,7 +12,7 @@ pub struct User {
     pub token: String,
 }
 
-#[derive(Debug, AsChangeset)]
+#[derive(Debug, AsChangeset, Insertable, Clone, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct MutUser {
     pub username: String,
@@ -20,7 +21,7 @@ pub struct MutUser {
 
 impl Model<User, MutUser, String> for User {
     fn create(new: &MutUser, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
-        unimplemented!()
+        diesel::insert_into(users::table).values(new).execute(db)
     }
 
     fn read_one(id: String, db: &diesel::MysqlConnection) -> Result<User, diesel::result::Error> {
