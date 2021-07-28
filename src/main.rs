@@ -1,10 +1,12 @@
 use actix_cors::Cors;
+use actix_ratelimit::{MemoryStore, MemoryStoreActor, RateLimiter};
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use diesel::mysql::MysqlConnection;
 use diesel::{Connection};
 use handlebars::Handlebars;
 use std::sync::Mutex;
+use std::time::Duration;
 use envy;
 use dotenv::dotenv;
 use diesel_migrations::{run_pending_migrations};
@@ -74,6 +76,8 @@ async fn main() -> std::io::Result<()> {
     // This is what enables hot reload.
     std::thread::spawn(|| watch::watch(hb));
 
+    let store = MemoryStore::new();
+
     let server_url = &format!(
         "{}:{}",
         &conf.bind_address,
@@ -89,6 +93,12 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .wrap(Logger::new("%a -> %U | %Dms "))
+            .wrap(
+                RateLimiter::new(
+                MemoryStoreActor::from(store.clone()).start())
+                    .with_interval(Duration::from_secs(60))
+                    .with_max_requests(usize::from(conf.max_req))
+            )
             .service(
                 web::scope("/v1")
                     .service(PageRouter::new())
