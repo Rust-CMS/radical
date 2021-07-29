@@ -8,5 +8,6 @@ pub struct LocalConfig {
     pub mysql_url: String,
     pub mysql_port: u16,
     pub bind_address: String,
-    pub bind_port: u16
+    pub bind_port: u16,
+    pub max_req: u16
 }
