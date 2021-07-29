@@ -1,6 +1,6 @@
 FROM rustlang/rust:nightly-buster-slim as cargo-build
 RUN apt update
-RUN apt install -y default-libmysqlclient-dev
+RUN apt install -y default-libmysqlclient-dev pkg-config
 WORKDIR /usr/src/rcms
 COPY . .
 RUN cargo install --path .
