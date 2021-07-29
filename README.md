@@ -15,13 +15,15 @@
 
 Radical is a CMS heavily inspired by [Processwire](https://processwire.com/). This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
 
-## Install It in 3 Minutes
+## Server Installation
 
 If you have docker, all you need to do is run [this](https://github.com/Rust-CMS/tooling) docker-compose.
 
+Sub $2/month GCP Cloud Run tutorial coming soon!
+
 ## Project State
 
-Version: v0.1.1
+Version: v0.1.2
 
 |             | Ready |
 | ----------- | ----------- |
@@ -96,11 +98,17 @@ Most all environment setup will be handled by an installer GUI in the future.
 ```yaml
 mysql_username=String
 mysql_password=String
-mysql_url=String
-mysql_port=Number
 mysql_database=String
 bind_address=String
 bind_port=Number
+
+mysql_url?=String
+mysql_port?=Number
+
+# OR for places like GCP Cloud Run
+
+MYSQL_UNIX_PORT?=String
+
 ```
 
 ## Notes on 404 Pages
