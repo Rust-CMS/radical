@@ -1,6 +1,6 @@
 [package]
 name = "rust-cms"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["spbills <spencebills0@gmail.com>"]
 edition = "2018"
 
@@ -12,6 +12,7 @@ actix-web = "3"
 actix-service = "*"
 actix-files = "0.5.0"
 actix-cors = "0.5.4"
+actix-ratelimit = "0.3.1"
 
 # serialization
 serde = { version = "1.0.118" }

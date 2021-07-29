@@ -11,4 +11,5 @@ pub struct LocalConfig {
     pub bind_port: u16,
     pub socket_dir: Option<String>,
     pub sql_name: Option<String>
+    pub max_req: u16
 }
