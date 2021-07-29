@@ -8,6 +8,7 @@ RUN cargo install --path .
 FROM debian:buster-slim
 RUN apt update
 RUN apt install -y default-libmysqlclient-dev
+RUN apt install pkg-config
 WORKDIR /usr/src/rcms
 COPY --from=cargo-build /usr/src/rcms/target/release/rust-cms /usr/bin/rcms
 COPY templates ./templates
