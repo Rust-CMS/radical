@@ -96,19 +96,19 @@ Next, run the migrations.
 Most all environment setup will be handled by an installer GUI in the future.
 
 ```yaml
-mysql_username=String
-mysql_password=String
-mysql_database=String
-bind_address=String
-bind_port=Number
+app_mysql_username=String
+app_mysql_password=String
+app_mysql_database=String
+app_bind_address=String
+app_bind_port=Number
 # Max request per IP per minute. Recommended 100 for 512mb 1vCPU
-max_req=Number
+app_max_req=Number
 
-mysql_url?=String
-mysql_port?=Number
+app_mysql_url?=String
+app_mysql_port?=Number
 
-# OR for places like GCP Cloud Run
-
+# OR for places like GCP Cloud Run. Do not mix, it will not work.
+# Note the lack of the APP_ prefix.
 MYSQL_UNIX_PORT?=String
 
 ```
