@@ -101,6 +101,8 @@ mysql_password=String
 mysql_database=String
 bind_address=String
 bind_port=Number
+# Max request per IP per minute. Recommended 100 for 512mb 1vCPU
+max_req=Number
 
 mysql_url?=String
 mysql_port?=Number
