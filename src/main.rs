@@ -20,6 +20,7 @@ mod models;
 mod routers;
 mod schema;
 mod watch;
+mod middleware;
 
 #[cfg(test)]
 mod tests;
@@ -27,8 +28,9 @@ mod tests;
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
-use crate::models::config_models::LocalConfig;
-use crate::routers::category_routers::CategoryRouter;
+use middleware::auth::Authorization;
+use models::config_models::LocalConfig;
+use routers::category_routers::CategoryRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -91,6 +93,7 @@ async fn main() -> std::io::Result<()> {
             .allow_any_method();
 
         App::new()
+            .wrap(Authorization)
             .wrap(cors)
             .wrap(Logger::new("%a -> %U | %Dms "))
             .wrap(

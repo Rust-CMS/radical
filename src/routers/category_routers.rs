@@ -1,6 +1,6 @@
 use actix_web::{web, Scope};
 
-use crate::controllers::category_controllers::*;
+use crate::{controllers::category_controllers::*};
 
 pub struct CategoryRouter;
 

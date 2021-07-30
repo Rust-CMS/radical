@@ -35,3 +35,10 @@ INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUI
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color1", (SELECT uuid FROM pages LIMIT 1), "red", (SELECT uuid FROM module_category LIMIT 1));
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color2", (SELECT uuid FROM pages LIMIT 1), "blue", (SELECT uuid FROM module_category LIMIT 1));
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color3", (SELECT uuid FROM pages LIMIT 1), "green", (SELECT uuid from module_category LIMIT 1));
+
+CREATE TABLE IF NOT EXISTS users (
+    uuid varchar(255) PRIMARY KEY,
+    username varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
+    token varchar(511) NOT NULL
+);

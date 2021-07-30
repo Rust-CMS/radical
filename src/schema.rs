@@ -26,6 +26,15 @@ table! {
     }
 }
 
+table! {
+    users (uuid) {
+        uuid -> Varchar,
+        username -> Varchar,
+        password -> Varchar,
+        token -> Varchar,
+    }
+}
+
 joinable!(module_category -> pages (page_uuid));
 joinable!(modules -> module_category (category_uuid));
 joinable!(modules -> pages (page_uuid));
@@ -34,4 +43,5 @@ allow_tables_to_appear_in_same_query!(
     module_category,
     modules,
     pages,
+    users,
 );
