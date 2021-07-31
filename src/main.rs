@@ -95,7 +95,6 @@ async fn main() -> std::io::Result<()> {
             .allow_any_method();
 
         App::new()
-            .wrap(Authorization)
             .wrap(cors)
             .wrap(Logger::new("%a -> %U | %Dms "))
             .wrap(

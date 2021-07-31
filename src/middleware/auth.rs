@@ -2,8 +2,8 @@ use std::task::{Context, Poll};
 
 use actix_service::{Service, Transform};
 use actix_web::http::Method;
+use actix_web::HttpResponse;
 use actix_web::{dev::ServiceRequest, dev::ServiceResponse, Error};
-use actix_web::{HttpResponse};
 use futures::future::{ok, Either, Ready};
 
 use crate::models::MySQLPool;
@@ -60,27 +60,29 @@ where
     fn call(&mut self, req: ServiceRequest) -> Self::Future {
         match authenticate(&req) {
             Ok(_) => Either::Left(self.service.call(req)),
-            Err(_) => Either::Right(ok(req.into_response(HttpResponse::Unauthorized().finish().into_body()))),
+            Err(_) => Either::Right(ok(
+                req.into_response(HttpResponse::Unauthorized().finish().into_body())
+            )),
         }
     }
 }
 
 fn authenticate(req: &ServiceRequest) -> Result<(), ()> {
     if !RESTRICTED_METHODS.contains(req.method()) {
-        return Ok(())
+        return Ok(());
     }
 
     let auth_header = req.headers().get("Authorization").ok_or(())?;
 
-    let decrypted_token = decrypt(
-        std::str::from_utf8(auth_header.as_bytes())
-            .unwrap()
-            .to_string(),
-    )
-    .ok_or(())?;
+    let encrypted_token = std::str::from_utf8(auth_header.as_bytes())
+        .unwrap()
+        .to_string();
+
+    let decrypted_token = decrypt(&encrypted_token).ok_or(())?;
 
     let is_logged_in = compare(
         decrypted_token,
+        &encrypted_token,
         req.app_data::<MySQLPool>().unwrap().to_owned(),
     );
 

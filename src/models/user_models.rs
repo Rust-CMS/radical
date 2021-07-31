@@ -4,19 +4,23 @@ use serde::{Serialize, Deserialize};
 
 use crate::{schema::users};
 
-#[derive(Queryable, Debug, Clone, Serialize, Deserialize)]
+#[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
+#[primary_key("uuid")]
+#[table_name = "users"]
 pub struct User {
     pub uuid: String,
     pub username: String,
     pub password: String,
-    pub token: String,
+    pub token: Option<String>,
 }
 
 #[derive(Debug, AsChangeset, Insertable, Clone, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct MutUser {
+    pub uuid: Option<String>,
     pub username: String,
-    pub password: String
+    pub password: Option<String>,
+    pub token: Option<String>,
 }
 
 impl Model<User, MutUser, String> for User {
@@ -44,5 +48,15 @@ impl Model<User, MutUser, String> for User {
 
     fn delete(id: String, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
         todo!()
+    }
+}
+
+impl User {
+    pub fn update_with_token(new: &MutUser, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
+        use users::dsl::username;
+
+        let res = diesel::update(users::table.filter(username.eq(new.username.clone()))).set(new).execute(db)?;
+
+        Ok(res)
     }
 }

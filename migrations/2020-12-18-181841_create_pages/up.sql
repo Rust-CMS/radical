@@ -38,7 +38,7 @@ INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALU
 
 CREATE TABLE IF NOT EXISTS users (
     uuid varchar(255) PRIMARY KEY,
-    username varchar(255) NOT NULL,
+    username varchar(255) NOT NULL UNIQUE,
     password varchar(255) NOT NULL,
-    token varchar(511) NOT NULL
+    token varchar(511)
 );

@@ -6,7 +6,8 @@ pub struct UserRouter;
 
 impl UserRouter {
     pub fn new() -> Scope {
-        web::scope("/pages")
+        web::scope("/user")
+            .route("/login", web::post().to(login))
             .route("", web::post().to(create_user))
             .route("/{id}", web::get().to(get_user))
             .route("/{id}", web::put().to(update_user))

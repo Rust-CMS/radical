@@ -31,7 +31,7 @@ table! {
         uuid -> Varchar,
         username -> Varchar,
         password -> Varchar,
-        token -> Varchar,
+        token -> Nullable<Varchar>,
     }
 }
 

@@ -61,3 +61,11 @@ impl From<diesel::result::Error> for CustomHttpError {
         }
     }
 }
+
+impl From<jsonwebtoken::errors::Error> for CustomHttpError {
+    fn from(e: jsonwebtoken::errors::Error) -> Self {
+        match e {
+            _ => CustomHttpError::Unknown
+        }
+    }
+}
