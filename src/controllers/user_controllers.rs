@@ -71,25 +71,33 @@ pub async fn login(
     let arg = Argon2::default();
 
     let read_user = User::read_one(user.username.clone(), &mysql_pool)?;
+    let read_user_password = PasswordHash::new(&read_user.password).unwrap();
 
-    if let Ok(_) = arg.verify_password(user.password.clone().unwrap().as_bytes(), &PasswordHash::new(&read_user.password).unwrap()) {
-        let mut new_user = user.clone();
+    match arg.verify_password(
+        user.password.clone().unwrap().as_bytes(),
+        &read_user_password,
+    ) {
+        Ok(_) => {
+            let mut new_user = user;
 
-        let claim = Claims {
-            exp: 100000,
-            username: new_user.username.clone(),
-        };
-        new_user.password = None;
-    
-        let token_enc = encrypt(claim)?;
-        new_user.token = Some(token_enc.clone());
-    
-        User::update_with_token(&new_user, &mysql_pool)?;
+            let claim = Claims {
+                exp: 100000,
+                username: new_user.username.clone(),
+            };
+            new_user.password = None;
 
-        Ok(HttpResponse::Ok()
-            .cookie(http::Cookie::new("auth", &token_enc))
-            .finish())
-    } else {
-        Ok(HttpResponse::Unauthorized().json("Failed to authenticate."))
+            let token_enc = encrypt(claim)?;
+
+            let cookie_response = HttpResponse::Ok()
+                .cookie(http::Cookie::new("auth", &token_enc))
+                .finish();
+
+            new_user.token = Some(token_enc);
+
+            User::update_with_token(&new_user, &mysql_pool)?;
+
+            Ok(cookie_response)
+        }
+        _ => Ok(HttpResponse::Unauthorized().json("Failed to authenticate.")),
     }
 }

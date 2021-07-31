@@ -28,7 +28,6 @@ mod tests;
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
-use middleware::auth::Authorization;
 use models::config_models::LocalConfig;
 use routers::category_routers::CategoryRouter;
 
