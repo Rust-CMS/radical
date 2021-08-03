@@ -10,6 +10,8 @@ pub enum CustomHttpError {
     NotFound,
     #[error("Unknown Internal Error")]
     Unknown,
+    #[error("User is not authorized.")]
+    Unauthorized,
 }
 
 /// Provides an interface for getting a description of the request.
@@ -19,6 +21,7 @@ impl CustomHttpError {
             Self::BadRequest => String::from("Server was unable to handle data"),
             Self::Unknown => String::from("Internal server error"),
             Self::NotFound => String::from("Resource was not found"),
+            Self::Unauthorized => String::from("Not authorized")
         }
     }
 }
@@ -37,6 +40,7 @@ impl ResponseError for CustomHttpError {
             Self::BadRequest => StatusCode::BAD_REQUEST,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
             Self::NotFound => StatusCode::NOT_FOUND,
+            Self::Unauthorized => StatusCode::UNAUTHORIZED
         }
     }
 

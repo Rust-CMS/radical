@@ -4,11 +4,13 @@ use uuid::Uuid;
 use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{Module, ModuleCategory, MutModule};
 
+use crate::services::auth_service::Claims;
 use crate::services::errors_service::CustomHttpError;
 
 pub async fn create_module(
     new: web::Json<MutModule>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -42,6 +44,7 @@ pub async fn update_module(
     updated_module: web::Json<MutModule>,
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -53,6 +56,7 @@ pub async fn update_module(
 pub async fn delete_module(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 

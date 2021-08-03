@@ -10,6 +10,7 @@ use crate::services::errors_service::CustomHttpError;
 pub async fn create_user(
     new: web::Json<MutUser>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -26,6 +27,7 @@ pub async fn create_user(
 pub async fn get_user(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -38,6 +40,7 @@ pub async fn update_user(
     id: web::Path<String>,
     new: web::Json<MutUser>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -55,6 +58,7 @@ pub async fn update_user(
 pub async fn delete_user(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -81,8 +85,8 @@ pub async fn login(
             let mut new_user = user;
 
             let claim = Claims {
-                exp: 100000,
-                username: new_user.username.clone(),
+                exp: (chrono::Utc::now() + chrono::Duration::days(10)).timestamp() as usize,
+                sub: new_user.username.clone(),
             };
             new_user.password = None;
 
