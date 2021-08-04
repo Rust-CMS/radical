@@ -43,7 +43,10 @@ impl Model<User, MutUser, String> for User {
         new: &MutUser,
         db: &diesel::MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
-        todo!()
+        use users::dsl::username;
+        let update = diesel::update(users::table.filter(username.eq(id))).set(new).execute(db)?;
+
+        Ok(update)
     }
 
     fn delete(id: String, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {

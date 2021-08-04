@@ -56,10 +56,11 @@ pub async fn update_user(
     };
 
     let token_enc = encrypt(claim)?;
-
+    let new_user = HttpResponse::Ok().cookie(http::Cookie::new("auth", &token_enc)).json(&new.clone());
+    salted_user.token = Some(token_enc);
     User::update(id.clone(), &new, &mysql_pool)?;
 
-    Ok(HttpResponse::Ok().cookie(http::Cookie::new("auth", &token_enc)).json(&new.clone()))
+    Ok(new_user)
 }
 
 pub async fn delete_user(
