@@ -58,7 +58,7 @@ pub async fn update_user(
     let token_enc = encrypt(claim)?;
     let new_user = HttpResponse::Ok().cookie(http::Cookie::new("auth", &token_enc)).json(&new.clone());
     salted_user.token = Some(token_enc);
-    User::update(id.clone(), &new, &mysql_pool)?;
+    User::update(id.clone(), &salted_user, &mysql_pool)?;
 
     Ok(new_user)
 }
