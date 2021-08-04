@@ -21,7 +21,7 @@ pub enum CryptoError {
     #[error("The user is not logged in")]
     NotLoggedIn,
     #[error("No auth header present.")]
-    NoAuth,
+    NoAuthHeader,
 }
 
 impl From<jsonwebtoken::errors::Error> for CryptoError {
@@ -105,7 +105,7 @@ impl FromRequest for Claims {
                 let fut = authenticate(auth, &mysql_pool);
                 Box::pin(fut)
             }
-            _ => Box::pin(async { Err(CustomHttpError::Unauthorized) }),
+            _ => Box::pin(async { Err(CryptoError::NoAuthHeader.into()) }),
         }
     }
 }
@@ -118,14 +118,17 @@ fn authenticate(
         .unwrap()
         .to_string();
 
-    // TODO figure out how to pass this error up.
-    let decrypted_token = decrypt(&encrypted_token).unwrap();
+    let decrypted_token = decrypt(&encrypted_token);
 
-    let logged_in = compare(&decrypted_token, &encrypted_token, db);
+    // done this way to pass up the error.
+    let mut logged_in = Err(CryptoError::NotLoggedIn);
+    if let Ok(decrypted_token) = &decrypted_token {
+        logged_in = compare(&decrypted_token, &encrypted_token, db);
+    }
 
     async move {
         match logged_in {
-            Ok(_) => Ok(decrypted_token),
+            Ok(_) => Ok(decrypted_token?),
             Err(e) => Err(e.into()),
         }
     }
