@@ -2,6 +2,8 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 use thiserror::Error;
 
+use super::auth_service::CryptoError;
+
 #[derive(Error, Debug)]
 pub enum CustomHttpError {
     #[error("Incorrect parameter type.")]
@@ -70,6 +72,14 @@ impl From<jsonwebtoken::errors::Error> for CustomHttpError {
     fn from(e: jsonwebtoken::errors::Error) -> Self {
         match e {
             _ => CustomHttpError::Unknown
+        }
+    }
+}
+
+impl From<CryptoError> for CustomHttpError {
+    fn from(e: CryptoError) -> Self {
+        match e {
+            _ => Self::Unauthorized
         }
     }
 }

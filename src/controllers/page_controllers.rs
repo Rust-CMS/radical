@@ -74,7 +74,7 @@ pub async fn create_page(
     Ok(HttpResponse::Ok().json(uuid_new))
 }
 
-pub async fn get_pages(pool: web::Data<MySQLPool>, _: Claims) -> Result<HttpResponse, CustomHttpError> {
+pub async fn get_pages(pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let pages: Vec<PageDTO> = Page::read_all(&mysql_pool)?;
 

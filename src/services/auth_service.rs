@@ -1,41 +1,74 @@
+use actix_web::{dev::Payload, http::HeaderValue, web, FromRequest, HttpRequest};
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use diesel::MysqlConnection;
 use futures::{future::LocalBoxFuture, Future};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
-
-use crate::models::{pool_handler, user_models, Model, MySQLPool};
-
-use actix_web::{dev::Payload, http::HeaderValue, web, FromRequest, HttpRequest};
+use thiserror::Error;
 
 use super::errors_service::CustomHttpError;
+use crate::models::{pool_handler, user_models, Model, MySQLPool};
 
-pub fn encrypt(claim: Claims) -> Result<String, jsonwebtoken::errors::Error> {
-    encode(
+#[derive(Error, Debug)]
+pub enum CryptoError {
+    #[error("An unknown cryptographic error has occured")]
+    Unknown,
+    #[error("User has failed their token comparison")]
+    FailedComparison,
+    #[error("There is no user present")]
+    NoUser,
+    #[error("The user is not logged in")]
+    NotLoggedIn,
+    #[error("No auth header present.")]
+    NoAuth,
+}
+
+impl From<jsonwebtoken::errors::Error> for CryptoError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        match err.kind() {
+            _ => Self::Unknown,
+        }
+    }
+}
+
+pub fn encrypt(claim: Claims) -> Result<String, CryptoError> {
+    let encoded_token = encode(
         &Header::default(),
         &claim,
         &EncodingKey::from_secret("B669681336E3D84E5BE598A92C524".as_ref()),
-    )
+    )?;
+
+    Ok(encoded_token)
 }
 
-pub fn decrypt(jwt: &String) -> Option<Claims> {
+pub fn decrypt(jwt: &String) -> Result<Claims, CryptoError> {
     let decoded_token = decode::<Claims>(
         jwt,
         &DecodingKey::from_secret("B669681336E3D84E5BE598A92C524".as_ref()),
         &Validation::default(),
-    )
-    .ok()?;
+    )?;
 
-    Some(decoded_token.claims)
+    Ok(decoded_token.claims)
 }
 
-pub fn compare(token: &Claims, enc_token: &String, pool: &MysqlConnection) -> bool {
+pub fn compare(
+    token: &Claims,
+    enc_token: &String,
+    pool: &MysqlConnection,
+) -> Result<(), CryptoError> {
     if let Ok(user) = user_models::User::read_one(token.sub.clone(), &pool) {
+        if user.token.is_none() {
+            return Err(CryptoError::NotLoggedIn);
+        }
         // verify against the encrypted version of the token.
-        return user.token == Some(enc_token.clone());
+        if user.token == Some(enc_token.clone()) {
+            return Ok(());
+        } else {
+            return Err(CryptoError::FailedComparison);
+        };
     } else {
-        return false;
+        return Err(CryptoError::NoUser);
     }
 }
 
@@ -43,6 +76,7 @@ pub fn encrypt_password(password: &String) -> String {
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
 
+    // TODO no unwrap
     return argon2
         .hash_password_simple(password.as_bytes(), &salt)
         .unwrap()
@@ -62,6 +96,7 @@ impl FromRequest for Claims {
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         let pool = req.app_data::<web::Data<MySQLPool>>().unwrap().to_owned();
+        // TODO this needs to not be blocking. not terribly important as only one or two users will be performing authenticated actions.
         let mysql_pool = pool_handler(pool).unwrap();
         let auth_header = req.headers().get("Authorization");
 
@@ -83,15 +118,15 @@ fn authenticate(
         .unwrap()
         .to_string();
 
+    // TODO figure out how to pass this error up.
     let decrypted_token = decrypt(&encrypted_token).unwrap();
 
-    let is_logged_in = compare(&decrypted_token, &encrypted_token, db);
+    let logged_in = compare(&decrypted_token, &encrypted_token, db);
 
     async move {
-        if is_logged_in {
-            Ok(decrypted_token)
-        } else {
-            Err(CustomHttpError::Unauthorized)
+        match logged_in {
+            Ok(_) => Ok(decrypted_token),
+            Err(e) => Err(e.into()),
         }
     }
 }
