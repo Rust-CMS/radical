@@ -15,7 +15,7 @@ pub async fn create_user(
     let mysql_pool = pool_handler(pool)?;
 
     let mut salted_user = new.clone();
-    let encrypted_password = encrypt_password(&salted_user.password.unwrap());
+    let encrypted_password = encrypt_password(&salted_user.password.unwrap())?;
     salted_user.password = Some(encrypted_password);
     salted_user.uuid = Some(Uuid::new_v4().to_string());
 
@@ -46,13 +46,20 @@ pub async fn update_user(
 
     // TODO maybe make this only happen whenever the password changes?
     let mut salted_user = new.clone();
-    let encrypted_password = encrypt_password(&salted_user.password.unwrap());
+    let encrypted_password = encrypt_password(&salted_user.password.unwrap())?;
     salted_user.password = Some(encrypted_password);
 
-    // if user updates username, give them a new token.
+    // give them a new token just in case they update their username.
+    let claim = Claims {
+        exp: (chrono::Utc::now() + chrono::Duration::days(10)).timestamp() as usize,
+        sub: salted_user.username.clone(),
+    };
+
+    let token_enc = encrypt(claim)?;
+
     User::update(id.clone(), &new, &mysql_pool)?;
 
-    Ok(HttpResponse::Ok().json(&new.clone()))
+    Ok(HttpResponse::Ok().cookie(http::Cookie::new("auth", &token_enc)).json(&new.clone()))
 }
 
 pub async fn delete_user(

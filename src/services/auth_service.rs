@@ -1,5 +1,5 @@
 use actix_web::{dev::Payload, http::HeaderValue, web, FromRequest, HttpRequest};
-use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
+use argon2::{Argon2, PasswordHash, PasswordHasher, password_hash::SaltString};
 use diesel::MysqlConnection;
 use futures::{future::LocalBoxFuture, Future};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
@@ -22,12 +22,22 @@ pub enum CryptoError {
     NotLoggedIn,
     #[error("No auth header present.")]
     NoAuthHeader,
+    #[error("Password operation failed.")]
+    OperationFail
 }
 
 impl From<jsonwebtoken::errors::Error> for CryptoError {
     fn from(err: jsonwebtoken::errors::Error) -> Self {
         match err.kind() {
             _ => Self::Unknown,
+        }
+    }
+}
+
+impl From<argon2::password_hash::Error> for CryptoError {
+    fn from(e: argon2::password_hash::Error) -> Self {
+        match e {
+            _ => Self::OperationFail
         }
     }
 }
@@ -72,15 +82,13 @@ pub fn compare(
     }
 }
 
-pub fn encrypt_password(password: &String) -> String {
+pub fn encrypt_password(password: &String) -> Result<String, CryptoError> {
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
 
-    // TODO no unwrap
-    return argon2
-        .hash_password_simple(password.as_bytes(), &salt)
-        .unwrap()
-        .to_string();
+    return Ok(argon2
+        .hash_password_simple(password.as_bytes(), &salt)?
+        .to_string());
 }
 
 #[derive(Debug, Serialize, Deserialize)]
