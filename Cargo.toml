@@ -40,6 +40,7 @@ envy = "0.4"
 dotenv = "*"
 uuid = {version = "0.8", features=["serde", "v4"]}
 futures = "*"
+time = "0.2.23"
 
 [dev-dependencies]
 actix-rt = "2.2.0"

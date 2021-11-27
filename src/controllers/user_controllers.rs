@@ -1,7 +1,9 @@
+use std::ops::AddAssign;
+
 use actix_web::cookie::Cookie;
 use actix_web::{http, web, HttpResponse};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use chrono::Duration;
+use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
 use crate::models::user_models::{MutUser, User};
@@ -50,14 +52,21 @@ pub async fn update_user(
     let encrypted_password = encrypt_password(&salted_user.password.unwrap())?;
     salted_user.password = Some(encrypted_password);
 
+    let exp_time = chrono::Utc::now() + chrono::Duration::days(10);
+
     // give them a new token just in case they update their username.
     let claim = Claims {
-        exp: (chrono::Utc::now() + chrono::Duration::days(10)).timestamp() as usize,
+        exp: (exp_time).timestamp() as usize,
         sub: salted_user.username.clone(),
     };
 
+    let time: OffsetDateTime = OffsetDateTime::now_utc() + Duration::hour();
+
     let token_enc = encrypt(claim)?;
-    let new_user = HttpResponse::Ok().cookie(http::Cookie::new("auth", &token_enc)).json(&new.clone());
+    let cookie = Cookie::build("auth", &token_enc)
+        .expires(time)
+        .finish();
+    let new_user = HttpResponse::Ok().cookie(cookie).json(&new.clone());
     salted_user.token = Some(token_enc);
     User::update(id.clone(), &salted_user, &mysql_pool)?;
 
@@ -100,11 +109,13 @@ pub async fn login(
             new_user.password = None;
             let token_enc = encrypt(claim)?;
 
-            // let expire_time = (chrono::Utc::now() + chrono::Duration::days(10)).to_rfc3339();
-            let cookie_str = format!("auth={}", &token_enc);
+            let time: OffsetDateTime = OffsetDateTime::now_utc() + Duration::hour();
+            let cookie = Cookie::build("auth", &token_enc)
+                .expires(time)
+                .finish();
 
             let cookie_response = HttpResponse::Ok()
-                .cookie(Cookie::parse(cookie_str).unwrap())
+                .cookie(cookie)
                 .finish();
 
             new_user.token = Some(token_enc);
