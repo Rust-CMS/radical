@@ -2,7 +2,7 @@
 .env
 
 # vscode stuff
-workspace.code-workspace
+*.code-workspace
 .vscode
 
 /public

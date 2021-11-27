@@ -21,9 +21,6 @@ mod routers;
 mod schema;
 mod watch;
 
-#[cfg(test)]
-mod tests;
-
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 

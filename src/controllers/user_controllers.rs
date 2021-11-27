@@ -1,7 +1,5 @@
-use std::ops::AddAssign;
-
 use actix_web::cookie::Cookie;
-use actix_web::{http, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;

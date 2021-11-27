@@ -34,7 +34,7 @@ impl Model<User, MutUser, String> for User {
         Ok(users::table.filter(username.eq(id)).first::<User>(db)?)
     }
 
-    fn read_all(db: &diesel::MysqlConnection) -> Result<Vec<User>, diesel::result::Error> {
+    fn read_all(_: &diesel::MysqlConnection) -> Result<Vec<User>, diesel::result::Error> {
         unimplemented!()
     }
 
@@ -51,7 +51,7 @@ impl Model<User, MutUser, String> for User {
         Ok(update)
     }
 
-    fn delete(id: String, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
+    fn delete(_: String, _: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
         todo!()
     }
 }
