@@ -1,18 +1,18 @@
 table! {
-    module_category (uuid) {
-        uuid -> Varchar,
-        page_uuid -> Varchar,
-        title -> Varchar,
-    }
-}
-
-table! {
     modules (uuid) {
         uuid -> Varchar,
         page_uuid -> Varchar,
         category_uuid -> Nullable<Varchar>,
         title -> Varchar,
         content -> Text,
+    }
+}
+
+table! {
+    module_category (uuid) {
+        uuid -> Varchar,
+        page_uuid -> Varchar,
+        title -> Varchar,
     }
 }
 
@@ -40,8 +40,8 @@ joinable!(modules -> module_category (category_uuid));
 joinable!(modules -> pages (page_uuid));
 
 allow_tables_to_appear_in_same_query!(
-    module_category,
     modules,
+    module_category,
     pages,
     users,
 );

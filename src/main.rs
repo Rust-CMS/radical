@@ -33,7 +33,6 @@ use routers::category_routers::CategoryRouter;
 
 use crate::routers::Router;
 use crate::routers::user_routers::UserRouter;
-use crate::controllers::*;
 
 #[macro_use]
 extern crate diesel;
@@ -90,10 +89,7 @@ async fn main() -> std::io::Result<()> {
     );
 
     let http_server = HttpServer::new(move || {
-        let cors = Cors::default()
-            .allow_any_origin()
-            .allow_any_header()
-            .allow_any_method();
+        let cors = Cors::permissive();
 
         let api_scope = web::scope("/v1")
             .service(UserRouter::new())

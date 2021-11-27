@@ -1,5 +1,5 @@
 use actix_web::{dev::Payload, http::HeaderValue, web, FromRequest, HttpRequest};
-use argon2::{Argon2, PasswordHash, PasswordHasher, password_hash::SaltString};
+use argon2::{Argon2, PasswordHasher, password_hash::SaltString};
 use diesel::MysqlConnection;
 use futures::{future::LocalBoxFuture, Future};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};

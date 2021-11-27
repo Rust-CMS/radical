@@ -1,5 +1,7 @@
+use actix_web::cookie::Cookie;
 use actix_web::{http, web, HttpResponse};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
+use chrono::Duration;
 use uuid::Uuid;
 
 use crate::models::user_models::{MutUser, User};
@@ -10,7 +12,6 @@ use crate::services::errors_service::CustomHttpError;
 pub async fn create_user(
     new: web::Json<MutUser>,
     pool: web::Data<MySQLPool>,
-    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -97,11 +98,13 @@ pub async fn login(
                 sub: new_user.username.clone(),
             };
             new_user.password = None;
-
             let token_enc = encrypt(claim)?;
 
+            // let expire_time = (chrono::Utc::now() + chrono::Duration::days(10)).to_rfc3339();
+            let cookie_str = format!("auth={}", &token_enc);
+
             let cookie_response = HttpResponse::Ok()
-                .cookie(http::Cookie::new("auth", &token_enc))
+                .cookie(Cookie::parse(cookie_str).unwrap())
                 .finish();
 
             new_user.token = Some(token_enc);

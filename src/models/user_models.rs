@@ -1,8 +1,8 @@
 use super::Model;
 use diesel::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{schema::users};
+use crate::schema::users;
 
 #[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
 #[primary_key("uuid")]
@@ -44,7 +44,9 @@ impl Model<User, MutUser, String> for User {
         db: &diesel::MysqlConnection,
     ) -> Result<usize, diesel::result::Error> {
         use users::dsl::username;
-        let update = diesel::update(users::table.filter(username.eq(id))).set(new).execute(db)?;
+        let update = diesel::update(users::table.filter(username.eq(id)))
+            .set(new)
+            .execute(db)?;
 
         Ok(update)
     }
@@ -55,10 +57,15 @@ impl Model<User, MutUser, String> for User {
 }
 
 impl User {
-    pub fn update_with_token(new: &MutUser, db: &diesel::MysqlConnection) -> Result<usize, diesel::result::Error> {
+    pub fn update_with_token(
+        new: &MutUser,
+        db: &diesel::MysqlConnection,
+    ) -> Result<usize, diesel::result::Error> {
         use users::dsl::username;
 
-        let res = diesel::update(users::table.filter(username.eq(new.username.clone()))).set(new).execute(db)?;
+        let res = diesel::update(users::table.filter(username.eq(new.username.clone())))
+            .set(new)
+            .execute(db)?;
 
         Ok(res)
     }
