@@ -20,7 +20,6 @@ mod models;
 mod routers;
 mod schema;
 mod watch;
-mod middleware;
 
 #[cfg(test)]
 mod tests;
