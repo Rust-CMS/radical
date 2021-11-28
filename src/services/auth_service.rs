@@ -118,7 +118,7 @@ impl FromRequest for Claims {
     }
 }
 
-fn authenticate(
+pub fn authenticate(
     auth_header: &HeaderValue,
     db: &MysqlConnection,
 ) -> impl Future<Output = Result<Claims, CustomHttpError>> {

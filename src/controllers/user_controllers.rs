@@ -1,12 +1,12 @@
 use actix_web::cookie::Cookie;
-use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpRequest, HttpResponse};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
 use crate::models::user_models::{MutUser, User};
 use crate::models::{pool_handler, Model, MySQLPool};
-use crate::services::auth_service::{encrypt, encrypt_password, Claims};
+use crate::services::auth_service::{authenticate, encrypt, encrypt_password, Claims};
 use crate::services::errors_service::CustomHttpError;
 
 pub async fn create_user(
@@ -28,7 +28,7 @@ pub async fn create_user(
 pub async fn get_user(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
-    _: Claims
+    _: Claims,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -41,7 +41,7 @@ pub async fn update_user(
     id: web::Path<String>,
     new: web::Json<MutUser>,
     pool: web::Data<MySQLPool>,
-    _: Claims
+    _: Claims,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -63,6 +63,7 @@ pub async fn update_user(
     let token_enc = encrypt(claim)?;
     let cookie = Cookie::build("auth", &token_enc)
         .expires(time)
+        .path("/")
         .finish();
     let new_user = HttpResponse::Ok().cookie(cookie).json(&new.clone());
     salted_user.token = Some(token_enc);
@@ -74,7 +75,7 @@ pub async fn update_user(
 pub async fn delete_user(
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
-    _: Claims
+    _: Claims,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -110,11 +111,10 @@ pub async fn login(
             let time: OffsetDateTime = OffsetDateTime::now_utc() + Duration::hour();
             let cookie = Cookie::build("auth", &token_enc)
                 .expires(time)
+                .path("/")
                 .finish();
 
-            let cookie_response = HttpResponse::Ok()
-                .cookie(cookie)
-                .finish();
+            let cookie_response = HttpResponse::Ok().cookie(cookie).finish();
 
             new_user.token = Some(token_enc);
 
@@ -123,5 +123,21 @@ pub async fn login(
             Ok(cookie_response)
         }
         _ => Ok(HttpResponse::Unauthorized().json("Failed to authenticate.")),
+    }
+}
+
+pub async fn check_login(req: HttpRequest, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+    let mysql_pool = pool_handler(pool)?;
+    let auth_header = req.headers().get("authorization");
+
+    let auth_res = authenticate(auth_header.unwrap(), &mysql_pool).await;
+
+    match auth_res {
+        Ok(_) => {
+            Ok(HttpResponse::Ok().finish())
+        },
+        Err(_) => {
+            Ok(HttpResponse::Unauthorized().finish())
+        }
     }
 }
