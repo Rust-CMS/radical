@@ -1,12 +1,10 @@
 pub mod config_models;
 pub mod module_models;
 pub mod page_models;
+pub mod user_models;
 
 use actix_web::web;
-use diesel::{
-    r2d2::{ConnectionManager, Pool, PoolError, PooledConnection},
-    MysqlConnection,
-};
+use diesel::{MysqlConnection, query_builder::AsChangeset, r2d2::{ConnectionManager, Pool, PoolError, PooledConnection}};
 
 use crate::services::errors_service::CustomHttpError;
 
@@ -16,7 +14,11 @@ pub type MySQLPool = Pool<ConnectionManager<MysqlConnection>>;
 pub type MySQLPooledConnection = PooledConnection<ConnectionManager<MysqlConnection>>;
 
 /// CRUD implementation.
-pub trait Model<TQueryable, TMutable, TPrimary, TDto = TQueryable> {
+/// TQueryable: The queryable struct.
+/// TMutable: The struct that represents the mutable columns in the table.
+/// TPrimary: The primary key type.
+/// TDto: The DTO object that will be sent back to the user.
+pub trait Model<TQueryable, TMutable: AsChangeset, TPrimary, TDto = TQueryable> {
     fn create(new: &TMutable, db: &MysqlConnection) -> Result<usize, diesel::result::Error>;
     fn read_one(id: TPrimary, db: &MysqlConnection) -> Result<TDto, diesel::result::Error>;
     fn read_all(db: &MysqlConnection) -> Result<Vec<TDto>, diesel::result::Error>;

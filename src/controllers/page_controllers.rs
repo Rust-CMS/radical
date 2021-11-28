@@ -9,6 +9,7 @@ use crate::models::{pool_handler, Model, MySQLPool};
 use crate::models::module_models::{FieldsDTO};
 use crate::models::page_models::{PageModuleDisplayDTO,MutPage, Page, PageDTO};
 
+use crate::services::auth_service::Claims;
 use crate::services::errors_service::CustomHttpError;
 
 fn parse_page(page: (Page, FieldsDTO)) -> Result<PageModuleDisplayDTO, CustomHttpError> {
@@ -61,6 +62,7 @@ pub async fn display_page(
 pub async fn create_page(
     new: web::Json<MutPage>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
@@ -106,6 +108,7 @@ pub async fn update_page(
     updated_page: web::Json<MutPage>,
     id: web::Path<String>,
     pool: web::Data<MySQLPool>,
+    _: Claims
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 

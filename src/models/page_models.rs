@@ -158,7 +158,6 @@ impl Page {
 
         let modules_no_category = Module::belonging_to(&filtered_page).filter(category_uuid.is_null()).load::<Module>(db)?;
 
-        // TODO this is wrong because if a category has no members, it will not return anything.
         let categories =  ModuleCategory::belonging_to(&filtered_page).load::<ModuleCategory>(db)?;
 
         let module_array: Vec<(Vec<Module>, ModuleCategory)> = Module::belonging_to(&categories)

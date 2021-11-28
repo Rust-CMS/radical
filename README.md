@@ -48,7 +48,7 @@ Required items:
 
 1. Clone this repository.
 
-`git clone git@github.com:SpBills/rust-cms.git`
+`git clone git@github.com:Rust-CMS/radical.git`
 
 Then, enter the repository.
 

@@ -2,6 +2,8 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 use thiserror::Error;
 
+use super::auth_service::CryptoError;
+
 #[derive(Error, Debug)]
 pub enum CustomHttpError {
     #[error("Incorrect parameter type.")]
@@ -10,6 +12,8 @@ pub enum CustomHttpError {
     NotFound,
     #[error("Unknown Internal Error")]
     Unknown,
+    #[error("User is not authorized.")]
+    Unauthorized,
 }
 
 /// Provides an interface for getting a description of the request.
@@ -19,6 +23,7 @@ impl CustomHttpError {
             Self::BadRequest => String::from("Server was unable to handle data"),
             Self::Unknown => String::from("Internal server error"),
             Self::NotFound => String::from("Resource was not found"),
+            Self::Unauthorized => String::from("Not authorized")
         }
     }
 }
@@ -37,6 +42,7 @@ impl ResponseError for CustomHttpError {
             Self::BadRequest => StatusCode::BAD_REQUEST,
             Self::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
             Self::NotFound => StatusCode::NOT_FOUND,
+            Self::Unauthorized => StatusCode::UNAUTHORIZED
         }
     }
 
@@ -58,6 +64,22 @@ impl From<diesel::result::Error> for CustomHttpError {
         match e {
             diesel::result::Error::NotFound => CustomHttpError::NotFound,
             _ => CustomHttpError::Unknown,
+        }
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for CustomHttpError {
+    fn from(e: jsonwebtoken::errors::Error) -> Self {
+        match e {
+            _ => CustomHttpError::Unknown
+        }
+    }
+}
+
+impl From<CryptoError> for CustomHttpError {
+    fn from(e: CryptoError) -> Self {
+        match e {
+            _ => Self::Unauthorized
         }
     }
 }

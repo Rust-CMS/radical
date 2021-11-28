@@ -1,11 +1,16 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 
-use crate::models::{Model, MySQLPool, pool_handler};
 use crate::models::module_models::{ModuleCategory, MutCategory};
+use crate::models::{pool_handler, Model, MySQLPool};
+use crate::services::auth_service::Claims;
 use crate::services::errors_service::CustomHttpError;
 
-pub async fn create_category(new: web::Json<MutCategory>, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+pub async fn create_category(
+    new: web::Json<MutCategory>,
+    pool: web::Data<MySQLPool>,
+    _: Claims
+) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
     let mut uuid_new = new.clone();
@@ -16,7 +21,12 @@ pub async fn create_category(new: web::Json<MutCategory>, pool: web::Data<MySQLP
     Ok(HttpResponse::Created().json(uuid_new))
 }
 
-pub async fn update_category(updated_category: web::Json<MutCategory>, id: web::Path<String>,  pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+pub async fn update_category(
+    updated_category: web::Json<MutCategory>,
+    id: web::Path<String>,
+    pool: web::Data<MySQLPool>,
+    _: Claims
+) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
     ModuleCategory::update(id.clone(), &updated_category, &mysql_pool)?;
@@ -24,7 +34,10 @@ pub async fn update_category(updated_category: web::Json<MutCategory>, id: web::
     Ok(HttpResponse::Ok().json(updated_category.0))
 }
 
-pub async fn get_category(id: web::Path<String>, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+pub async fn get_category(
+    id: web::Path<String>,
+    pool: web::Data<MySQLPool>,
+) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
     let res = ModuleCategory::read_one(id.clone(), &mysql_pool)?;
@@ -32,7 +45,11 @@ pub async fn get_category(id: web::Path<String>, pool: web::Data<MySQLPool>) -> 
     Ok(HttpResponse::Ok().json(res))
 }
 
-pub async fn delete_category(id: web::Path<String>, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+pub async fn delete_category(
+    id: web::Path<String>,
+    pool: web::Data<MySQLPool>,
+    _: Claims
+) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 
     let res = ModuleCategory::delete(id.clone(), &mysql_pool)?;

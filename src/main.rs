@@ -21,14 +21,14 @@ mod routers;
 mod schema;
 mod watch;
 
-#[cfg(test)]
-mod tests;
-
 use routers::module_routers::ModuleRouter;
 use routers::page_routers::PageRouter;
 
-use crate::models::config_models::LocalConfig;
-use crate::routers::category_routers::CategoryRouter;
+use models::config_models::LocalConfig;
+use routers::category_routers::CategoryRouter;
+
+use crate::routers::Router;
+use crate::routers::user_routers::UserRouter;
 
 #[macro_use]
 extern crate diesel;
@@ -85,26 +85,24 @@ async fn main() -> std::io::Result<()> {
     );
 
     let http_server = HttpServer::new(move || {
-        let cors = Cors::default()
-            .allow_any_origin()
-            .allow_any_header()
-            .allow_any_method();
+        let cors = Cors::permissive();
+
+        let api_scope = web::scope("/v1")
+            .service(UserRouter::new())
+            .service(PageRouter::new())
+            .service(ModuleRouter::new())
+            .service(CategoryRouter::new());
+
+        let rate_limiting = RateLimiter::new(
+            MemoryStoreActor::from(store.clone()).start())
+                .with_interval(Duration::from_secs(60))
+                .with_max_requests(usize::from(conf.max_req));
 
         App::new()
             .wrap(cors)
             .wrap(Logger::new("%a -> %U | %Dms "))
-            .wrap(
-                RateLimiter::new(
-                MemoryStoreActor::from(store.clone()).start())
-                    .with_interval(Duration::from_secs(60))
-                    .with_max_requests(usize::from(conf.max_req))
-            )
-            .service(
-                web::scope("/v1")
-                    .service(PageRouter::new())
-                    .service(ModuleRouter::new())
-                    .service(CategoryRouter::new()),
-            )
+            .wrap(rate_limiting)
+            .service(api_scope)
             .service(fs::Files::new("/assets", "./templates/assets").show_files_listing())
             .default_service(web::get().to(controllers::page_controllers::display_page))
             .data(pool.clone())
