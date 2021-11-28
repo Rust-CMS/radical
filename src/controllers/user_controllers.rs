@@ -126,18 +126,26 @@ pub async fn login(
     }
 }
 
-pub async fn check_login(req: HttpRequest, pool: web::Data<MySQLPool>) -> Result<HttpResponse, CustomHttpError> {
+pub async fn logout() -> Result<HttpResponse, CustomHttpError> {
+    let cookie = Cookie::build("auth", "")
+        .expires(OffsetDateTime::now_utc())
+        .path("/")
+        .finish();
+
+    Ok(HttpResponse::Ok().cookie(cookie).finish())
+}
+
+pub async fn check_login(
+    req: HttpRequest,
+    pool: web::Data<MySQLPool>,
+) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
     let auth_header = req.headers().get("authorization");
 
     let auth_res = authenticate(auth_header.unwrap(), &mysql_pool).await;
 
     match auth_res {
-        Ok(_) => {
-            Ok(HttpResponse::Ok().finish())
-        },
-        Err(_) => {
-            Ok(HttpResponse::Unauthorized().finish())
-        }
+        Ok(_) => Ok(HttpResponse::Ok().finish()),
+        Err(_) => Ok(HttpResponse::Unauthorized().finish()),
     }
 }
