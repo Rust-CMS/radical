@@ -1,15 +1,15 @@
 FROM rustlang/rust:nightly-buster-slim as cargo-build
 RUN apt update
 RUN apt install -y default-libmysqlclient-dev pkg-config libssl-dev
-WORKDIR /usr/src/rcms
+WORKDIR /usr/src/radical
 COPY . .
 RUN cargo install --path .
 
 FROM debian:buster-slim
 RUN apt update
 RUN apt install -y default-libmysqlclient-dev pkg-config libssl-dev
-WORKDIR /usr/src/rcms
-COPY --from=cargo-build /usr/src/rcms/target/release/rust-cms /usr/bin/rcms
+WORKDIR /usr/src/radical
+COPY --from=cargo-build /usr/src/radical/target/release/rust-cms /usr/bin/radical
 COPY templates ./templates
 COPY migrations ./migrations
 COPY wait-for-it.sh .
@@ -22,4 +22,4 @@ ENV MYSQL_UNIX_PORT = /var/lib/mysql/mysqld.sock
 
 RUN ln -s /var/lib/mysql/mysqld.sock ${SOCKET_PATH}
 
-CMD [ "rcms" ]
+CMD [ "radical" ]

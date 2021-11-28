@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS modules (
     FOREIGN KEY (category_uuid) REFERENCES module_category(uuid) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "title", (SELECT uuid FROM pages LIMIT 1), "Welcome to RCMS.");
+INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "title", (SELECT uuid FROM pages LIMIT 1), "Welcome to Radical.");
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "small", (SELECT uuid FROM pages LIMIT 1), "A Rusty Wordpress Replacement");
-INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "githublink", (SELECT uuid FROM pages LIMIT 1), "https://github.com/Rust-CMS/rcms");
+INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "githublink", (SELECT uuid FROM pages LIMIT 1), "https://github.com/Rust-CMS/radical");
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content) VALUES ((SELECT UUID()), "githublink_tooling", (SELECT uuid FROM pages LIMIT 1), "https://github.com/Rust-CMS/tooling");
 
 INSERT IGNORE INTO modules (uuid, title, page_uuid, content, category_uuid) VALUES ((SELECT UUID()), "color1", (SELECT uuid FROM pages LIMIT 1), "red", (SELECT uuid FROM module_category LIMIT 1));
