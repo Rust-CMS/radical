@@ -9,7 +9,7 @@ FROM debian:buster-slim
 RUN apt update
 RUN apt install -y default-libmysqlclient-dev pkg-config libssl-dev
 WORKDIR /usr/src/radical
-COPY --from=cargo-build /usr/src/radical/target/release/rust-cms /usr/bin/radical
+COPY --from=cargo-build /usr/src/radical/target/release/radical /usr/bin/radical
 COPY templates ./templates
 COPY migrations ./migrations
 COPY wait-for-it.sh .
