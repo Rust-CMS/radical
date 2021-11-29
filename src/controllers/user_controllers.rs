@@ -12,6 +12,7 @@ use crate::services::errors_service::CustomHttpError;
 pub async fn create_user(
     new: web::Json<MutUser>,
     pool: web::Data<MySQLPool>,
+    _: Claims,
 ) -> Result<HttpResponse, CustomHttpError> {
     let mysql_pool = pool_handler(pool)?;
 

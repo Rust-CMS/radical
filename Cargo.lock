@@ -2008,7 +2008,6 @@ dependencies = [
  "actix-files",
  "actix-ratelimit",
  "actix-rt 2.2.0",
- "actix-service",
  "actix-web",
  "argon2",
  "chrono",
