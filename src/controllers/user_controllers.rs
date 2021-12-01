@@ -49,6 +49,7 @@ pub async fn update_user(
     // TODO maybe make this only happen whenever the password changes?
     let mut salted_user = new.clone();
 
+    // if you're trying to change someone elses data, don't allow it.
     if id.clone() != claim.sub {
         // TODO make this an err, not Ok.
         return Ok(HttpResponse::Unauthorized().finish());
@@ -101,12 +102,19 @@ pub async fn login(
 
     let read_user = User::read_one(user.username.clone(), &mysql_pool)?;
 
+    let is_default = read_user.username == "root" && read_user.password == "";
+
+    // if you're trying to login to a root user more than once with no password set, send back a forbidden.
+    if read_user.token.is_some() && is_default {
+        return Ok(HttpResponse::Forbidden().finish());
+    }
+
     // default password handler.
-    if read_user.username == "root" && read_user.password == "" {
+    if is_default {
         let mut new_user = user.clone();
         let cookie = login_res(&mut new_user)?;
 
-        let cookie_response = HttpResponse::Ok().cookie(cookie.clone()).finish();
+        let cookie_response = HttpResponse::Accepted().cookie(cookie.clone()).finish();
 
         new_user.token = Some(cookie.value().to_string());
 
