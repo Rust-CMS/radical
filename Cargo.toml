@@ -1,6 +1,6 @@
 [package]
 name = "radical"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["spbills <spencebills0@gmail.com>"]
 edition = "2018"
 
