@@ -1,6 +1,6 @@
 [package]
 name = "radical"
-version = "0.1.2"
+version = "0.1.4"
 authors = ["spbills <spencebills0@gmail.com>"]
 edition = "2018"
 
@@ -9,7 +9,6 @@ edition = "2018"
 [dependencies]
 # web
 actix-web = "3"
-actix-service = "*"
 actix-files = "0.5.0"
 actix-cors = "0.5.4"
 actix-ratelimit = "0.3.1"

@@ -42,3 +42,5 @@ CREATE TABLE IF NOT EXISTS users (
     password varchar(255) NOT NULL,
     token varchar(511)
 );
+
+INSERT IGNORE INTO users (uuid, username, password) VALUES ((SELECT UUID()), "root", "");

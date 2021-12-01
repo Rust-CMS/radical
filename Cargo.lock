@@ -2002,13 +2002,12 @@ dependencies = [
 
 [[package]]
 name = "radical"
-version = "0.1.2"
+version = "0.1.4"
 dependencies = [
  "actix-cors",
  "actix-files",
  "actix-ratelimit",
  "actix-rt 2.2.0",
- "actix-service",
  "actix-web",
  "argon2",
  "chrono",

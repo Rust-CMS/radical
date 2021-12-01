@@ -23,7 +23,7 @@ Sub $2/month GCP Cloud Run tutorial coming soon!
 
 ## Project State
 
-Version: v0.1.3
+Version: v0.1.4
 
 |             | Ready |
 | ----------- | ----------- |
