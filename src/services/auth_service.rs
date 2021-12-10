@@ -46,7 +46,7 @@ pub fn encrypt(claim: Claims) -> Result<String, CryptoError> {
     let encoded_token = encode(
         &Header::default(),
         &claim,
-        &EncodingKey::from_secret("B669681336E3D84E5BE598A92C524".as_ref()),
+        &EncodingKey::from_secret(std::env::var("APP_JWT_KEY").unwrap().as_bytes()),
     )?;
 
     Ok(encoded_token)
@@ -55,7 +55,7 @@ pub fn encrypt(claim: Claims) -> Result<String, CryptoError> {
 pub fn decrypt(jwt: &String) -> Result<Claims, CryptoError> {
     let decoded_token = decode::<Claims>(
         jwt,
-        &DecodingKey::from_secret("B669681336E3D84E5BE598A92C524".as_ref()),
+        &DecodingKey::from_secret(std::env::var("APP_JWT_KEY").unwrap().as_bytes()),
         &Validation::default(),
     )?;
 
