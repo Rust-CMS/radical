@@ -13,11 +13,13 @@
 
 ## Project Description
 
-Radical is a CMS heavily inspired by [Processwire](https://processwire.com/). This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
+Radical is a headless (with a head that will be disable-able) CMS heavily inspired by [Processwire](https://processwire.com/). This is not a markdown site generator like other CMSs. If you would like something of that nature, see [here](#repositories-like-this).
 
 ## Server Installation
 
 If you have docker, all you need to do is run [this](https://github.com/Rust-CMS/tooling) docker-compose.
+
+Otherwise, you can run follow the directions to set it up on Kubernetes.
 
 Sub $2/month GCP Cloud Run tutorial coming soon!
 
